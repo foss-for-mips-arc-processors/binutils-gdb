@@ -390,7 +390,8 @@ static const struct arc_reloc_map arc_reloc_map[] =
 
 #undef ARC_RELOC_HOWTO
 
-typedef ATTRIBUTE_UNUSED unsigned (*replace_func) (unsigned, int ATTRIBUTE_UNUSED);
+typedef ATTRIBUTE_UNUSED
+bfd_vma (*replace_func) (bfd_vma, bfd_vma ATTRIBUTE_UNUSED);
 
 #define ARC_RELOC_HOWTO(TYPE, VALUE, SIZE, BITSIZE, RELOC_FUNCTION, OVERFLOW, FORMULA) \
   case TYPE: \
