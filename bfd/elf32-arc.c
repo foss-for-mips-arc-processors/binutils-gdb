@@ -2316,24 +2316,22 @@ GOT_ENTRY_OFFSET = %#lx, GOT_ENTRY_VMA = %#lx, for symbol %s\n",
   }
 }
 
+/* Initialize the PLT with ARC specific PLT header.  See arc-plt.def.
+   Use middle-endian to fill in the data as it is executable code.  */
+
 static void
 relocate_plt_for_entry (bfd *abfd,
 			struct bfd_link_info *info)
 {
   const struct plt_version_t *plt_data = arc_get_plt_version (info);
   struct elf_link_hash_table *htab = elf_hash_table (info);
+  bfd_vma i = 0;
+  uint16_t *ptr = (uint16_t *) plt_data->entry;
 
-  {
-    bfd_vma i = 0;
-    uint16_t *ptr = (uint16_t *) plt_data->entry;
-    for (i = 0; i < plt_data->entry_size/2; i++)
-      {
-	uint16_t data = ptr[i];
-	bfd_put_16 (abfd,
-		    (bfd_vma) data,
-		    htab->splt->contents + (i*2));
-      }
-  }
+  for (i = 0; i < plt_data->entry_size/2; i++)
+    {
+      bfd_put_16 (abfd, (bfd_vma) ptr[i], htab->splt->contents + (i*2));
+    }
   PLT_DO_RELOCS_FOR_ENTRY (abfd, htab, plt_data->entry_relocs);
 }
 
@@ -2669,6 +2667,7 @@ elf_arc_finish_dynamic_sections (struct bfd_link_info *info,
 	    bfd_elf32_swap_dyn_out (info->output_bfd, &internal_dyn, dyncon);
 	}
 
+      /* Fill in the first entry in the procedure linkage table.  */
       if (htab->splt->size > 0)
 	{
 	  relocate_plt_for_entry (info->output_bfd, info);
