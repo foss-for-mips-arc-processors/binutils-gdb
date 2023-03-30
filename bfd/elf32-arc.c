@@ -2672,23 +2672,31 @@ elf_arc_finish_dynamic_sections (bfd * output_bfd,
   /* Fill in the first three entries in the global offset table.  */
   if (htab->sgot)
     {
-      struct elf_link_hash_entry *h;
-      h = elf_link_hash_lookup (elf_hash_table (info), "_GLOBAL_OFFSET_TABLE_",
-				 false, false, true);
+      struct elf_link_hash_entry *got;
+      /* Get the hash entry of the first GOT entry.  */
+      got = elf_link_hash_lookup (elf_hash_table (info),
+				  "_GLOBAL_OFFSET_TABLE_", false, false, true);
 
-	if (h != NULL && h->root.type != bfd_link_hash_undefined
-	    && h->root.u.def.section != NULL)
+      if (got != NULL
+	  && got->root.type != bfd_link_hash_undefined
+	  && got->root.u.def.section != NULL)
 	{
-	  asection *sec = h->root.u.def.section;
+	  asection *sec = got->root.u.def.section;
+	  bfd_vma dyn_vma = 0;
 
-	  if (sdyn == NULL)
-	    bfd_put_32 (output_bfd, (bfd_vma) 0,
-			sec->contents);
-	  else
-	    bfd_put_32 (output_bfd,
-			sdyn->output_section->vma + sdyn->output_offset,
-			sec->contents);
+	  /* Check if we participate in a dynamic linking.  */
+	  if (sdyn)
+	    {
+	      /* Get the unrelocated address of the _DYNAMIC, which is
+		 the start of the start of the dynamic sction.  */
+	      dyn_vma = sdyn->output_section->vma + sdyn->output_offset;
+	    }
+
+	  /* _GLOBAL_OFFSET_TABLE_[0] = VMA (.dynamic)  */
+	  bfd_put_32 (output_bfd, dyn_vma, sec->contents);
+	  /* _GLOBAL_OFFSET_TABLE_[1] = 0. Reserved for dynamic linker.  */
 	  bfd_put_32 (output_bfd, (bfd_vma) 0, sec->contents + 4);
+	  /* _GLOBAL_OFFSET_TABLE_[2] = 0. Reserved for dynamic linker.  */
 	  bfd_put_32 (output_bfd, (bfd_vma) 0, sec->contents + 8);
 	}
     }
