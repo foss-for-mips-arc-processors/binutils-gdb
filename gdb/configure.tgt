@@ -73,6 +73,11 @@ arc-*-* | arceb-*-*)
 	cpu_obs="arc-tdep.o arch/arc.o"
 	;;
 
+arc32-*-* | arc64-*-*)
+	# Target: Unidentified arc64 target
+	cpu_obs="arc64-tdep.o arch/arc.o"
+	;;
+
 arm*-*-*)
 	cpu_obs="aarch32-tdep.o arch/aarch32.o arch/arm.o \
 		 arch/arm-get-next-pcs.o arm-tdep.o arm-none-tdep.o"
@@ -192,6 +197,11 @@ arc-*-linux* | arceb-*-linux*)
 	# Target: ARC machine running Linux
 	gdb_target_obs="arc-linux-tdep.o linux-tdep.o solib-svr4.o \
 			solib-svr4-linux.o"
+	;;
+
+arc32-*-elf* | arc64-*-elf*)
+	# Target: baremetal arc64 elf32/64 (newlib) target
+	gdb_target_obs="arc64-newlib-tdep.o"
 	;;
 
 arm*-wince-pe | arm*-*-mingw32ce*)
