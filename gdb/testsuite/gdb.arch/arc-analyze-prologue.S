@@ -15,6 +15,14 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifdef __ARC64_ARCH64__
+#define PUSH_S push
+#define POP_S pop
+#else
+#define PUSH_S push_s
+#define POP_S pop_s
+#endif
+
 .section .data
 some_variable:
 .long	0xdeadbeef
@@ -44,8 +52,8 @@ standard_prologue:
 
 .align 4
 mini_prologue:
-	push_s	blink
-	sub_s	sp,sp,12
+	PUSH_S	blink
+	sub	sp,sp,12
 	; ST_S can store only some of the core registers.
 	st_s	r13, [sp, 0]
 	st_s	r15, [sp, 4]
@@ -106,7 +114,7 @@ fp_prologue_with_store:
 	push	r14
 	push	fp
 	mov	fp, sp
-	sub_s	sp,sp,4
+	sub	sp,sp,4
 	st	r15,[fp,-4]
 	add	r0, r1, r2
 	pop	r15
@@ -155,7 +163,10 @@ noncallee_saved_regs_gp_push:
 	add	sp,sp,8
 
 ; LP_COUNT is treated like a normal register.
+; HS6x does not have loop instructions and registers but HS5x does. However,
+; it's not supported by GNU tools yet.
 
+#ifndef __ARCV3__
 .align 4
 noncallee_saved_regs_lp_count:
 	push	r25
@@ -163,6 +174,7 @@ noncallee_saved_regs_lp_count:
 	add	r0, r1, r2
 	j.d	[blink]
 	add	sp,sp,8
+#endif
 
 ; BLINK is saved, but after an instruction that is not part of prologue.
 ; Currently arc_analyze_prologue stops analysis at the first instruction
@@ -277,7 +289,11 @@ enter_s_r15:
 
 .align 4
 enter_s_all:
+#ifdef __ARCV3__
+	enter_s	(32 + 16 + 13)
+#else
 	enter_s	(32 + 16 + 14)
+#endif
 	add	r0,r1,r2
 	j.d	[blink]
 	add	sp,sp,64
@@ -365,7 +381,7 @@ branch_in_prologue:
 
 .align 4
 cond_branch_in_prologue:
-	sub_s	sp,sp,8
+	sub	sp,sp,8
 	st_s	r13,[sp,4]
 	; Doesn't matter if branch is taken or not.
 	breq	r0,r1,@.L2
@@ -390,7 +406,7 @@ jump_in_prologue:
 
 .align 4
 cond_jump_in_prologue:
-	sub_s	sp,sp,8
+	sub	sp,sp,8
 	st_s	r13,[sp,4]
 	; It doesn't matter if jump is taken or not - prologue analysis has to
 	; stop before `jeq` in any case.
@@ -404,7 +420,7 @@ cond_jump_in_prologue:
 
 .align 4
 predicated_insn:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	st_s	r15,[sp,0]
 	; Use SUB SP,SP,0 because it is otherwise a valid instruction for
@@ -415,7 +431,10 @@ predicated_insn:
 	j	[blink]
 
 ; Loops should halt prologue analysis.
+; HS6x does not have loop instructions and registers but HS5x does. However,
+; it's not supported by GNU tools yet.
 
+#ifndef __ARCV3__
 .align 4
 loop_in_prologue:
 	push r25
@@ -430,12 +449,13 @@ loop_in_prologue:
 	add sp,sp,8
 	pop r25
 	j   [blink]
+#endif
 
 ; Store of a constant value (not a register).
 
 .align 4
 store_constant:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	st	0xdeadbeef,[sp,0]
 	st_s	r14,[sp,4]
@@ -580,7 +600,7 @@ st_double:
 
 .align 4
 r_relative_store:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	mov	r13,sp
 	; Check for both mov and mov_s in one testcase.
@@ -600,7 +620,7 @@ r_relative_sub_store:
 	; st_s	r13,[sp,8]
 	; st_s	r14,[sp,4]
 	; st_s	r15,[sp,0]
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	sub	r13,sp,4
 	st	r14,[r13,8]
@@ -612,7 +632,7 @@ r_relative_sub_store:
 
 .align 4
 r_relative_store_st_s:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	mov	r13,sp
 	st_s	r15,[r13,4]
@@ -624,7 +644,7 @@ r_relative_store_st_s:
 
 .align 4
 r_relative_store_unknown:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	st	r15,[gp,0] ; GP value is not relative to SP.
 	st_s	r14,[sp,4]
@@ -635,7 +655,7 @@ r_relative_store_unknown:
 
 .align 4
 st_s_r0gp:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,8]
 	st_s	r0,[gp,0] ; GP value is not relative to SP.
 	st_s	r14,[sp,4]
@@ -645,6 +665,7 @@ st_s_r0gp:
 ; Check prologue that uses `push_s RR` instructions. `push_s b` and `push_s
 ; blink` use slightly different subopcodes.
 
+#ifndef __ARC64_ARCH64__
 .align 4
 push_s_prologue:
 	push_s	r12
@@ -658,9 +679,12 @@ push_s_prologue:
 	push_s	blink ; Also tested in mini_prologue ().
 	add	sp,sp,(4 * 9)
 	j	[blink]
+#endif
 
 ; Check for SUB_S c,b,u3 presence - it doesn't affect prologue.
+; ARCv3 targets does not have this instruction.
 
+#ifndef __ARCV3__
 .align 4
 sub_s_cbu3:
 	push_s	r13
@@ -668,16 +692,17 @@ sub_s_cbu3:
 	push_s	r14
 	add	sp,sp,8
 	j	[blink]
+#endif
 
 ; Check for SUB_S b,b,c presence - it doesn't affect prologue.
 
 .align 4
 sub_s_bbc:
-	push_s	r13
+	PUSH_S	r13
 	sub_s	r0,r0,r1
-	push_s	r0
-	push_s	r1
-	push_s	r14
+	PUSH_S	r0
+	PUSH_S	r1
+	PUSH_S	r14
 	add	sp,sp,16
 	j	[blink]
 
@@ -685,10 +710,10 @@ sub_s_bbc:
 
 .align 4
 sub_s_bbu5:
-	push_s	r13
+	PUSH_S	r13
 	sub_s	r2,r2,14
-	push_s	r2
-	push_s	r14
+	PUSH_S	r2
+	PUSH_S	r14
 	add	sp,sp,12
 	j	[blink]
 
@@ -697,10 +722,10 @@ sub_s_bbu5:
 
 .align 4
 sub_0bc:
-	push_s	r13
+	PUSH_S	r13
 	sub	0,r1,r2
 	sub.f	0,r3,r4
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,8
 	j	[blink]
 
@@ -708,9 +733,9 @@ sub_0bc:
 
 .align 4
 sub_alimmb:
-	push_s	r13
+	PUSH_S	r13
 	sub	r13,0xdeadbeef,r14
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,8
 	j	[blink]
 
@@ -718,9 +743,9 @@ sub_alimmb:
 
 .align 4
 sub_s_ne_bbb:
-	push_s	r13
+	PUSH_S	r13
 	sub_s.ne  r13,r13,r13
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,8
 	j	[blink]
 
@@ -728,31 +753,31 @@ sub_s_ne_bbb:
 
 .align 4
 mov_limm:
-	push_s	r13
+	PUSH_S	r13
 	mov	r13,0xdeadbeef
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,4
-	pop_s	r13
+	POP_S	r13
 	j	[blink]
 
 ; Check MOV 0,c.
 
 .align 4
 mov0c_limm:
-	push_s	r13
+	PUSH_S	r13
 	mov	0,r13
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,4
-	pop_s	r13
+	POP_S	r13
 	j	[blink]
 
 ; Check that MOV_S h,s3 doesn't prevent prologue analysis.
 
 .align 4
 mov_s_hs3:
-	push_s	r13
+	PUSH_S	r13
 	mov_s	r5,1
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,8
 	j	[blink]
 
@@ -760,9 +785,9 @@ mov_s_hs3:
 
 .align 4
 mov_s_bu8:
-	push_s	r13
+	PUSH_S	r13
 	mov_s	r12,250
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,8
 	j	[blink]
 
@@ -770,9 +795,9 @@ mov_s_bu8:
 
 .align 4
 mov_s_ne_bh:
-	push_s	r13
+	PUSH_S	r13
 	mov_s.ne r13,r5
-	push_s	r14
+	PUSH_S	r14
 	add	sp,sp,8
 	j	[blink]
 
@@ -781,7 +806,7 @@ mov_s_ne_bh:
 
 .align 4
 unstored_reg:
-	sub_s	sp,sp,12
+	sub	sp,sp,12
 	st_s	r13,[sp,0]
 	st_s	r14,[sp,4]
 	mov	r12,0x42
@@ -793,7 +818,7 @@ unstored_reg:
 
 .align 4
 double_store:
-	sub_s	sp,sp,4
+	sub	sp,sp,4
 	st_s	r13,[sp,0]
 	st_s	r14,[sp,0]
 	add	sp,sp,4
@@ -844,7 +869,9 @@ main:
 	bl	@noncallee_saved_regs_r12_push
 	bl	@noncallee_saved_regs_r2_push
 	bl	@noncallee_saved_regs_gp_push
+#ifndef __ARCV3__
 	bl	@noncallee_saved_regs_lp_count
+#endif
 	bl	@noncallee_saved_regs_blink_out_of_prologue
 	bl	@arg_regs_fp
 	bl	@arg_regs_fp_mov_s
@@ -862,7 +889,9 @@ main:
 	bl	@jump_in_prologue
 	bl	@cond_jump_in_prologue
 	bl	@predicated_insn
+#ifndef __ARCV3__
 	bl	@loop_in_prologue
+#endif
 	bl	@store_constant
 	bl	@st_c_limm
 	bl	@st_ab_writeback
@@ -880,8 +909,12 @@ main:
 	bl	@r_relative_store_st_s
 	bl	@r_relative_store_unknown
 	bl	@st_s_r0gp
+#ifndef __ARC64_ARCH64__
 	bl	@push_s_prologue
+#endif
+#ifndef __ARCV3__
 	bl	@sub_s_cbu3
+#endif
 	bl	@sub_s_bbc
 	bl	@sub_s_bbu5
 	bl	@sub_0bc
