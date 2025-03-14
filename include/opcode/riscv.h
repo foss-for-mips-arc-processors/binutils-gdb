@@ -637,6 +637,7 @@ enum riscv_insn_class
   INSN_CLASS_XSMTVDOT,
   INSN_CLASS_XSMTVDOTII,
   INSN_CLASS_XSMTVDOT_OR_XSMTVDOTII,
+  INSN_CLASS_XARCVUDSP,
 };
 
 /* This structure holds information for a particular instruction.  */

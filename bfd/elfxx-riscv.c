@@ -1233,6 +1233,8 @@ static const struct riscv_implicit_subset riscv_implicit_subsets[] =
   {"xsmtvdot", "+zve32x", check_implicit_always},
   {"xsmtvdotii", "+xsmtvdot", check_implicit_always},
 
+  {"xarcvudsp", "+xarcvbitrev", check_implicit_always},
+
   {"v", "+zve64d,+zvl128b", check_implicit_always},
   {"zvabd", "+zve32x", check_implicit_always},
   {"zvfh", "+zvfhmin,+zfhmin", check_implicit_always},
@@ -1673,6 +1675,7 @@ static const struct riscv_supported_ext riscv_supported_vendor_x_ext[] =
   {"xmipslsp",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xsmtvdot",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xsmtvdotii",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
+  {"xarcvudsp",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {NULL, 0, 0, 0, 0}
 };
 
@@ -2320,6 +2323,14 @@ riscv_parse_check_conflicts (riscv_parse_subset_t *rps)
 			  xlen);
       no_conflict = false;
     }
+  if (riscv_lookup_subset (rps->subset_list, "xarcvudsp", &subset)
+      && riscv_lookup_subset (rps->subset_list, "v", &subset))
+    {
+      rps->error_handler
+	(_("`xarcvudsp' is conflict with the `v' extension"));
+      no_conflict = false;
+    }
+
 
   bool support_zve = false;
   bool support_zvl = false;
@@ -3141,6 +3152,8 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
     case INSN_CLASS_XSMTVDOT_OR_XSMTVDOTII:
       return (riscv_subset_supports (rps, "xsmtvdot")
 	      || riscv_subset_supports (rps, "xsmtvdotii"));
+    case INSN_CLASS_XARCVUDSP:
+      return riscv_subset_supports (rps, "xarcvudsp");
     default:
       rps->error_handler
         (_("internal: unreachable INSN_CLASS_*"));
@@ -3476,6 +3489,8 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "xsmtvdotii";
     case INSN_CLASS_XSMTVDOT_OR_XSMTVDOTII:
       return _("xsmtvdot' or `xsmtvdotii");
+    case INSN_CLASS_XARCVUDSP:
+      return "xarcvudsp";
     default:
       rps->error_handler
         (_("internal: unreachable INSN_CLASS_*"));
