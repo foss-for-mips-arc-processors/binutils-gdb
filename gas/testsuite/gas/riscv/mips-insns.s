@@ -49,3 +49,10 @@
   mips.mcache 16, (t1)
   mips.mcache 2, (t1)
   .option pop
+
+  # xmipsmdiag
+  .option push
+  .option arch, +xmipsmdiag
+  mips.mdiagr t1
+  mips.mdiagw t1
+  .option pop
