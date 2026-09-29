@@ -29,3 +29,8 @@ Disassembly of section .text:
 [ 	]+[0-9a-f]+:[ 	]+58a6528b[ 	]+mips.swp[ 	]+a0,a1,4\(a2\)
 [ 	]+[0-9a-f]+:[ 	]+76d7dc8b[ 	]+mips.swp[ 	]+a3,a4,120\(a5\)
 [ 	]+[0-9a-f]+:[ 	]+76d7de8b[ 	]+mips.swp[ 	]+a3,a4,124\(a5\)
+
+[ 	]+[0-9a-f]+:[ 	]+ec0300f3[ 	]+mips.mcache[ 	]+0x0,\(t1\)
+[ 	]+[0-9a-f]+:[ 	]+edf300f3[ 	]+mips.mcache[ 	]+0x1f,\(t1\)
+[ 	]+[0-9a-f]+:[ 	]+ed0300f3[ 	]+mips.mcache[ 	]+0x10,\(t1\)
+[ 	]+[0-9a-f]+:[ 	]+ec2300f3[ 	]+mips.mcache[ 	]+0x2,\(t1\)
