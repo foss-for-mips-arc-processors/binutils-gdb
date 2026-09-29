@@ -1781,6 +1781,7 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)
 		  case '%': used_bits |= ENCODE_MIPS_LWP_IMM (-1U); break;
 		  case '^': used_bits |= ENCODE_MIPS_SDP_IMM (-1U); break;
 		  case '&': used_bits |= ENCODE_MIPS_SWP_IMM (-1U); break;
+      case '4': used_bits |= ENCODE_MIPS_COREXTEND_IMM (-1U); break;
 		  default:
 		    goto unknown_validate_operand;
 		}
@@ -4670,6 +4671,19 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 				     (imm_expr->X_add_number >> 2));
 		      INSERT_OPERAND(MIPS_SWP_OFFSET25, *ip,
 				     (imm_expr->X_add_number >> 5));
+		      imm_expr->X_op = O_absent;
+		      asarg = expr_parse_end;
+		      continue;
+
+		    case '4': /* COREXTEND imm 0 to 15.  */
+		      my_getExpression (imm_expr, asarg);
+		      check_absolute_expr (ip, imm_expr, FALSE);
+		      if ((unsigned long)imm_expr->X_add_number < 0
+       && (unsigned long)imm_expr->X_add_number >= (1 << 4))
+			as_bad (_("Improper COREXTEND imm (%lu)"),
+			       (unsigned long)imm_expr->X_add_number);
+		      INSERT_OPERAND (MIPS_COREXTEND_OFFSET, *ip,
+				     (imm_expr->X_add_number >> 0));
 		      imm_expr->X_op = O_absent;
 		      asarg = expr_parse_end;
 		      continue;
