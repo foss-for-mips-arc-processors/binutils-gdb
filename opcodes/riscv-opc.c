@@ -3753,6 +3753,8 @@ const struct riscv_opcode riscv_opcodes[] =
 {"mips.sdp", 0, INSN_CLASS_XMIPSLSP, "t,r,Xm^(s)", MATCH_MIPS_SDP, MASK_MIPS_SDP, match_opcode, 0 },
 {"mips.swp", 0, INSN_CLASS_XMIPSLSP, "t,r,Xm&(s)", MATCH_MIPS_SWP, MASK_MIPS_SWP, match_opcode, 0 },
 {"mips.mcache", 0, INSN_CLASS_XMIPSCBOM, "<,(s)", MATCH_MIPS_MCACHE, MASK_MIPS_MCACHE, match_opcode, 0 },
+{"mips.mdiagr", 0, INSN_CLASS_XMIPSMDIAG, "s", MATCH_MIPS_MDIAGR, MASK_MIPS_MDIAGR, match_opcode, 0 },
+{"mips.mdiagw", 0, INSN_CLASS_XMIPSMDIAG, "s", MATCH_MIPS_MDIAGW, MASK_MIPS_MDIAGW, match_opcode, 0 },
 /* MIPS trig instructions.  */
 {"mips.fsinhz.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FSINHZ_S, MASK_MIPS_FSINHZ_S, match_opcode, 0 },
 {"mips.fcoshz.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FCOSHZ_S, MASK_MIPS_FCOSHZ_S, match_opcode, 0 },
