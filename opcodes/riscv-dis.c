@@ -943,6 +943,10 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 		  print (info->stream, dis_style_immediate, "%d",
 			 (unsigned)EXTRACT_MIPS_SWP_IMM (l));
 		  break;
+		case '4':
+		  print (info->stream, dis_style_immediate, "%d",
+			 (unsigned)EXTRACT_MIPS_COREXTEND_IMM (l));
+		  break;
 		default:
 		  goto undefined_modifier;
 		}
