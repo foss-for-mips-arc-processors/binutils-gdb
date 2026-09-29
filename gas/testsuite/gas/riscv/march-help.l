@@ -185,3 +185,4 @@ All available -march extensions for RISC-V:
 	xmipsexectl                             1.0
 	xmipslsp                                1.0
 	xmipstrig                               1.0
+	xmipscbom                               1.0
