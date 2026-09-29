@@ -34,3 +34,6 @@ Disassembly of section .text:
 [ 	]+[0-9a-f]+:[ 	]+edf300f3[ 	]+mips.mcache[ 	]+0x1f,\(t1\)
 [ 	]+[0-9a-f]+:[ 	]+ed0300f3[ 	]+mips.mcache[ 	]+0x10,\(t1\)
 [ 	]+[0-9a-f]+:[ 	]+ec2300f3[ 	]+mips.mcache[ 	]+0x2,\(t1\)
+
+[ 	]+[0-9a-f]+:[ 	]+ec0306f3[ 	]+mips.mdiagr[ 	]+t1
+[ 	]+[0-9a-f]+:[ 	]+ec1306f3[ 	]+mips.mdiagw[ 	]+t1
