@@ -4678,7 +4678,7 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 		    case '4': /* COREXTEND imm 0 to 15.  */
 		      my_getExpression (imm_expr, asarg);
 		      check_absolute_expr (ip, imm_expr, FALSE);
-		      if ((unsigned long)imm_expr->X_add_number < 0
+		      if (imm_expr->X_add_number < 0
        && (unsigned long)imm_expr->X_add_number >= (1 << 4))
 			as_bad (_("Improper COREXTEND imm (%lu)"),
 			       (unsigned long)imm_expr->X_add_number);
