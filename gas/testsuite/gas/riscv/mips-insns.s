@@ -40,3 +40,35 @@
 	mips.swp	a3, a4, 120(a5)
 	mips.swp	a3, a4, 124(a5)
 	.option pop
+
+  # xmipscbom
+  .option push
+  .option arch, +xmipscbom
+  mips.mcache 0, (t1)
+  mips.mcache 31, (t1)
+  mips.mcache 16, (t1)
+  mips.mcache 2, (t1)
+  .option pop
+
+  # xmipsmdiag
+  .option push
+  .option arch, +xmipsmdiag
+  mips.mdiagr t1
+  mips.mdiagw t1
+  .option pop
+
+  # xmipscorextend
+  .option push
+  .option arch, +xmipscorextend
+  mips.corextend t0, t1, t2, 5
+  .option pop
+
+  # xmipsmginv
+  .option push
+  .option arch, +xmipsmginv
+  mips.mginv.fence
+  mips.mginv.gvma t0, t1
+  mips.mginv.i t0
+  mips.mginv.vma t0, t1
+  mips.mginv.vvma t0, t1
+  .option pop

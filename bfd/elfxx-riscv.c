@@ -1639,6 +1639,10 @@ static struct riscv_supported_ext riscv_supported_vendor_x_ext[] =
   {"xmipsexectl",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xmipslsp",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xmipstrig",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
+  {"xmipscbom",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
+  {"xmipsmdiag",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
+  {"xmipscorextend",   ISA_SPEC_CLASS_DRAFT, 1, 0, 0 },
+  {"xmipsmginv",   ISA_SPEC_CLASS_DRAFT, 1, 0, 0 },
   {"xarcvudsp",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xarcvbitrev",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xarcvbitstream",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
@@ -3076,6 +3080,14 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
       return riscv_subset_supports (rps, "xmipslsp");
     case INSN_CLASS_XMIPSTRIG:
       return riscv_subset_supports (rps, "xmipstrig");
+    case INSN_CLASS_XMIPSCBOM:
+      return riscv_subset_supports (rps, "xmipscbom");
+    case INSN_CLASS_XMIPSMDIAG:
+      return riscv_subset_supports (rps, "xmipsmdiag");
+    case INSN_CLASS_XMIPSCOREXTEND:
+      return riscv_subset_supports (rps, "xmipscorextend");
+    case INSN_CLASS_XMIPSMGINV:
+      return riscv_subset_supports (rps, "xmipsmginv");
     case INSN_CLASS_XARCVUDSP:
       return riscv_subset_supports (rps, "xarcvudsp");
     case INSN_CLASS_XARCVBITREV:
@@ -3388,6 +3400,14 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "xmipslsp";
     case INSN_CLASS_XMIPSTRIG:
       return "xmipstrig";
+    case INSN_CLASS_XMIPSCBOM:
+      return "xmipscbom";
+    case INSN_CLASS_XMIPSMDIAG:
+      return "xmipsmdiag";
+    case INSN_CLASS_XMIPSCOREXTEND:
+      return "xmipscorextend";
+    case INSN_CLASS_XMIPSMGINV:
+      return "xmipsmginv";
     case INSN_CLASS_XARCVUDSP:
       return "xarcvudsp";
     case INSN_CLASS_XARCVBITREV:
