@@ -6,6 +6,7 @@ aout32.c
 aout64.c
 aoutx.h
 arc-got.h
+arc-plt.c
 arc-plt.h
 archive.c
 archive64.c

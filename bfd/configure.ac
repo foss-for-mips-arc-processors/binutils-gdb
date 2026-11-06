@@ -378,7 +378,7 @@ xcoff="xcofflink.lo $coffgen"
 
 elf32_aarch64="elf32-aarch64.lo elfxx-aarch64.lo elf-ifunc.lo elf32.lo elf-attrs.lo"
 elf64_aarch64="elf64-aarch64.lo elfxx-aarch64.lo elf-ifunc.lo elf64.lo elf-attrs.lo elf-sframe.lo"
-elf_arc="elf32-arc.lo elf32.lo elf-attrs.lo"
+elf_arc="arc-plt.lo elf32-arc.lo elf32.lo elf-attrs.lo"
 elf_arm="elf32-arm.lo elf32.lo elf-attrs.lo"
 elf_csky="elf32-csky.lo elf32.lo elf-attrs.lo"
 elf32_mips="elf32-mips.lo elfxx-mips.lo elf32.lo elf-attrs.lo"
