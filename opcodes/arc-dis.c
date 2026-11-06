@@ -102,13 +102,43 @@ static const char * const regnames[64] =
   "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
   "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15",
   "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23",
-  "r24", "r25", "gp", "fp", "sp", "ilink", "r30", "blink",
+  "r24", "r25", "r26", "fp", "sp", "ilink", "r30", "blink",
 
   "r32", "r33", "r34", "r35", "r36", "r37", "r38", "r39",
   "r40", "r41", "r42", "r43", "r44", "r45", "r46", "r47",
   "r48", "r49", "r50", "r51", "r52", "r53", "r54", "r55",
   "r56", "r57", "r58", "r59", "lp_count", "reserved", "LIMM", "pcl"
 };
+
+typedef struct regmod
+{
+  const unsigned int index;
+  const unsigned int isa;
+  const char *rname;
+} regmod_t;
+
+static regmod_t regmods[] =
+{
+  { 26, ARC_OPCODE_ARCV1 | ARC_OPCODE_ARCV2, "gp" },
+  { 29, ARC_OPCODE_ARCV1, "ilink1" },
+  { 30, ARC_OPCODE_ARCV1, "ilink2" },
+  { 0, ARC_OPCODE_NONE, 0 }
+};
+
+static const char *
+getregname (unsigned int index, unsigned int isa_mask)
+{
+  regmod_t *iregmods = regmods;
+  while (iregmods->rname)
+    {
+      if (index == iregmods->index
+	  && (isa_mask & iregmods->isa))
+	return iregmods->rname;
+      iregmods++;
+    }
+
+  return regnames[index % 64];
+}
 
 static const char * const addrtypenames[ARC_NUM_ADDRTYPES] =
 {
@@ -1282,7 +1312,7 @@ print_insn_arc (bfd_vma memaddr,
 	  assert (value >=0 && value < 64);
 	  rname = arcExtMap_coreRegName (value);
 	  if (!rname)
-	    rname = regnames[value];
+	    rname = getregname (value, arc_infop->isa_mask);
 	  (*info->fprintf_styled_func) (info->stream, dis_style_register,
 					"%s", rname);
 
@@ -1293,7 +1323,7 @@ print_insn_arc (bfd_vma memaddr,
 		{
 		  rname = arcExtMap_coreRegName (value + 1);
 		  if (!rname)
-		    rname = regnames[value + 1];
+		    rname = getregname (value + 1, arc_infop->isa_mask);
 		}
 	      else
 		rname = _("\nWarning: illegal use of double register "
@@ -1370,7 +1400,8 @@ print_insn_arc (bfd_vma memaddr,
 						dis_style_text, "-");
 		  (*info->fprintf_styled_func) (info->stream,
 						dis_style_register, "%s",
-						regnames[13 + value - 1]);
+						getregname (13 + value - 1,
+							 arc_infop->isa_mask));
 		  break;
 		}
 	      rpcl = false;
