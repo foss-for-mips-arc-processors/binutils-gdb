@@ -1,0 +1,8 @@
+
+[^:]*:\s+file format elf32-.*arc
+
+
+Disassembly of section \.text:
+
+0+3000 <__start>:
+\s+3000:\s+[0-9a-f ]+\smov\s+r0,0x2020
