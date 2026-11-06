@@ -48,3 +48,53 @@ set arccommon_tests {
 }
 
 run_ld_link_tests $arccommon_tests
+
+# PLT and GOT tests that link an executable against a shared object.  The
+# layout comes from plt-got.ld, so that the expected output can contain the
+# addresses derived from the ARCv2 ABI.  Tests that do not need a second
+# link step are the plt-*.d and got-*.d files run by the loop at the top of
+# this file.
+if { [check_shared_lib_support] } {
+    set arc_plt_ld "-EL -T plt-got.ld --hash-style=sysv"
+    set arc_plt_as "-mcpu=archs -EL"
+
+    # The shared object used by all the executables.
+    set arc_plt_exe_tests [list \
+	[list "ARC PLT library" \
+	    "-shared $arc_plt_ld" "" "$arc_plt_as" {plt-lib.s} {} \
+	    "plt-lib.so"]]
+
+    # {name source options {{label tool options expected-file} ...}}
+    set arc_plt_exes {
+	{"call" plt-exe-call.s ""
+	    {{"relocs" readelf -rW plt-exe-call.rd}
+	     {"dynsym" readelf {--dyn-syms -W} plt-exe-call-sym.rd}
+	     {"code" objdump {-d -j .text} plt-exe-call.dd}}}
+	{"function address" plt-exe-addr.s ""
+	    {{"relocs" readelf -rW plt-exe-addr.rd}
+	     {"dynsym" readelf {--dyn-syms -W} plt-exe-addr-sym.rd}
+	     {"code" objdump {-d -j .text} plt-exe-addr.dd}}}
+	{"copy relocation" plt-exe-data.s ""
+	    {{"relocs" readelf -rW plt-exe-data.rd}
+	     {"dynsym" readelf {--dyn-syms -W} plt-exe-data-sym.rd}
+	     {"code" objdump {-d -j .text} plt-exe-data.dd}}}
+    }
+    if { [check_pie_support] } {
+	lappend arc_plt_exes \
+	    {"PIE" plt-exe-pie.s "-pie"
+		{{".rela.dyn" readelf -rW plt-exe-pie-dyn.rd}
+		 {".rela.plt" readelf -rW plt-exe-pie-plt.rd}}}
+    }
+    foreach exe $arc_plt_exes {
+	lassign $exe name src opts checks
+	foreach check $checks {
+	    lassign $check label tool toolopts expected
+	    lappend arc_plt_exe_tests \
+		[list "ARC PLT executable, $name ($label)" \
+		    "$opts $arc_plt_ld" "tmpdir/plt-lib.so" "$arc_plt_as" \
+		    [list $src] [list [list $tool $toolopts $expected]] \
+		    "plt-exe"]
+	}
+    }
+    run_ld_link_tests $arc_plt_exe_tests
+}
