@@ -27,6 +27,9 @@
 #include "libiberty.h"
 #include "opcode/arc-func.h"
 #include "opcode/arc.h"
+
+#define RELA_SIZE sizeof(ElfNN_External_Rela)
+
 #include "arc-plt.h"
 
 #define FEATURE_LIST_NAME bfdNN_feature_list
@@ -38,7 +41,10 @@
 
 #define LOG_FILE_ALIGN (ARCH_SIZE == 32 ? 2 : 3)
 
-/* #define ARC_ENABLE_DEBUG 1  */
+/* Do not enable this unless you know what you are doing.
+   Code under this macro is not safe for production.
+   #define ARC_ENABLE_DEBUG 1  */
+
 #ifdef ARC_ENABLE_DEBUG
 static const char *
 name_for_global_symbol (struct elf_link_hash_entry *h)
@@ -2195,7 +2201,7 @@ add_symbol_to_plt (struct bfd_link_info *info)
   htab->splt->size += plt_data->elem_size;
   ARC_DEBUG ("PLT_SIZE = %d\n", (int) htab->splt->size);
 
-  htab->sgotplt->size += 4;
+  htab->sgotplt->size += GOT_ENTRY_SIZE;
   htab->srelplt->size += sizeof (ElfNN_External_Rela);
 
   return ret;
@@ -2269,7 +2275,7 @@ relocate_plt_for_symbol (bfd *output_bfd,
 
   bfd_vma plt_index = (h->plt.offset  - plt_data->entry_size)
 		      / plt_data->elem_size;
-  bfd_vma got_offset = (plt_index + 3) * 4;
+  bfd_vma got_offset = (plt_index + 3) * GOT_ENTRY_SIZE;
   bed = get_elf_backend_data (output_bfd);
 
   ARC_DEBUG ("arc_info: PLT_OFFSET = %#lx, PLT_ENTRY_VMA = %#lx, \
@@ -2692,7 +2698,7 @@ elf_arc_finish_dynamic_sections (struct bfd_link_info *info,
       /* TODO: Validate this.  */
       if (htab->srelplt->output_section != bfd_abs_section_ptr)
 	elf_section_data (htab->srelplt->output_section)
-	  ->this_hdr.sh_entsize = 12;
+	  ->this_hdr.sh_entsize = GOT_ENTRY_SIZE * 3;
     }
 
   /* Fill in the first three entries in the global offset table.  */
@@ -2708,14 +2714,14 @@ elf_arc_finish_dynamic_sections (struct bfd_link_info *info,
 	  asection *sec = h->root.u.def.section;
 
 	  if (sdyn == NULL)
-	    bfd_put_32 (info->output_bfd, 0,
-			sec->contents);
+	    write_in_got (info->output_bfd, 0, sec->contents);
 	  else
-	    bfd_put_32 (info->output_bfd,
-			sdyn->output_section->vma + sdyn->output_offset,
-			sec->contents);
-	  bfd_put_32 (info->output_bfd, 0, sec->contents + 4);
-	  bfd_put_32 (info->output_bfd, 0, sec->contents + 8);
+	    write_in_got (info->output_bfd,
+			  sdyn->output_section->vma + sdyn->output_offset,
+			  sec->contents);
+	  write_in_got (info->output_bfd, 0, sec->contents + GOT_ENTRY_SIZE);
+	  write_in_got (info->output_bfd, 0,
+			sec->contents + GOT_ENTRY_SIZE * 2);
 	}
     }
 
@@ -3174,7 +3180,7 @@ arc_elf_relax_section (bfd *abfd, asection *sec,
 #define elf_backend_plt_readonly	1
 #define elf_backend_rela_plts_and_copies_p 1
 #define elf_backend_want_plt_sym	0
-#define elf_backend_got_header_size	12
+#define elf_backend_got_header_size	(GOT_ENTRY_SIZE * 3)
 #define elf_backend_dtrel_excludes_plt	1
 
 #define elf_backend_may_use_rel_p	0

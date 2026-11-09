@@ -22,7 +22,13 @@
 #ifndef ARC_GOT_H
 #define ARC_GOT_H
 
+/* Thread Control Block (TCB) contains at offset zero a pointer to the
+   dynamic thread vector dtvt for the thread.  */
 #define TCB_SIZE (8)
+
+#define GOT_ENTRY_SIZE 4
+#define write_in_got(A, B, C) bfd_put_32 (A, B, C)
+#define read_from_got(A, B) bfd_get_32 (A, B)
 
 #define	align_power(addr, align)	\
   (((addr) + ((bfd_vma) 1 << (align)) - 1) & (-((bfd_vma) 1 << (align))))
@@ -201,7 +207,7 @@ arc_got_entry_type_for_reloc (reloc_howto_type *howto)
   {									\
     if (COND_FOR_RELOC)							\
       {									\
-	htab->srel##SECNAME->size += sizeof (Elf32_External_Rela);	\
+	htab->srel##SECNAME->size += RELA_SIZE;				\
 	  ARC_DEBUG ("arc_info: Added reloc space in "			\
 		     #SECNAME " section at " __FILE__			\
 		     ":%d for symbol %s\n",				\
@@ -211,7 +217,7 @@ arc_got_entry_type_for_reloc (reloc_howto_type *howto)
       if (H->dynindx == -1 && !H->forced_local)				\
 	if (! bfd_elf_link_record_dynamic_symbol (info, H))		\
 	  return false;							\
-     htab->s##SECNAME->size += 4;					\
+     htab->s##SECNAME->size += GOT_ENTRY_SIZE;				\
    }									\
 
 static bool
@@ -350,15 +356,15 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 		      get_static_sym_data (r_symndx, local_syms, local_sections,
 					   h, reloc_data);
 
-		    bfd_put_32 (output_bfd,
-			    tmp.sym_value - sec_vma
-			    + (elf_hash_table (info)->dynamic_sections_created
-			       ? 0
-			       : (align_power (0,
-					       tls_sec->alignment_power))),
-			    htab->sgot->contents + entry->offset
-			    + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-			       ? 4 : 0));
+		    write_in_got (output_bfd,
+			      tmp.sym_value - sec_vma
+			      + (elf_hash_table (info)->dynamic_sections_created
+				 ? 0
+				 : (align_power (0,
+						 tls_sec->alignment_power))),
+			      htab->sgot->contents + entry->offset
+			      + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
+				 ? GOT_ENTRY_SIZE : 0));
 
 		    ARC_DEBUG ("arc_info: FIXED -> %s value = %#lx "
 			  "@ %lx, for symbol %s\n",
@@ -369,7 +375,7 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 			     + htab->sgot->output_offset
 			     + entry->offset
 			     + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-				? 4 : 0)),
+				? GOT_ENTRY_SIZE : 0)),
 			  tmp.symbol_name);
 		  }
 	      }
@@ -385,15 +391,15 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 		  get_static_sym_data (r_symndx, local_syms, local_sections,
 				       h, reloc_data);
 
-		bfd_put_32 (output_bfd,
-			    tmp.sym_value - sec_vma
-			    + (elf_hash_table (info)->dynamic_sections_created
-			       ? 0
-			       : (align_power (TCB_SIZE,
-					       tls_sec->alignment_power))),
-			    htab->sgot->contents + entry->offset
-			    + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-			       ? 4 : 0));
+		write_in_got (output_bfd,
+			      tmp.sym_value - sec_vma
+			      + (elf_hash_table (info)->dynamic_sections_created
+				 ? 0
+				 : (align_power (TCB_SIZE,
+						 tls_sec->alignment_power))),
+			      htab->sgot->contents + entry->offset
+			      + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
+				 ? GOT_ENTRY_SIZE : 0));
 
 		ARC_DEBUG ("arc_info: FIXED -> %s value = %#lx "
 			   "@ %p, for symbol %s\n",
@@ -404,7 +410,7 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 			      + htab->sgot->output_offset
 			      + entry->offset
 			      + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-				 ? 4 : 0)),
+				 ? GOT_ENTRY_SIZE : 0)),
 			   tmp.symbol_name);
 	      }
 	      break;
@@ -427,9 +433,9 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 			     (long) entry->offset);
 		else
 		  {
-		    bfd_put_32 (output_bfd,
-				reloc_data->sym_value + sec_vma,
-				htab->sgot->contents + entry->offset);
+		    write_in_got (output_bfd,
+				  reloc_data->sym_value + sec_vma,
+				  htab->sgot->contents + entry->offset);
 		    ARC_DEBUG ("arc_info: PATCHED: %#08lx "
 			       "@ %#08lx for sym %s in got offset %#lx\n",
 			       (long) (reloc_data->sym_value + sec_vma),
@@ -516,12 +522,13 @@ GOT_OFFSET = %#lx, GOT_VMA = %#lx, INDEX = %ld, ADDEND = 0x0\n",
 	  bfd_vma addend = 0;
 	  if (list->type == GOT_TLS_IE)
 	  {
-	    addend = bfd_get_32 (output_bfd,
-				 htab->sgot->contents + got_offset);
+	    addend = read_from_got (output_bfd,
+				     htab->sgot->contents + got_offset);
 	  }
 
 	  ADD_RELA (output_bfd, got,
-		    got_offset + (e == TLS_GOT_MOD_AND_OFF ? 4 : 0),
+		    got_offset
+		    + (e == TLS_GOT_MOD_AND_OFF ? GOT_ENTRY_SIZE : 0),
 		    dynindx,
 		    (list->type == GOT_TLS_IE ? R_ARC_TLS_TPOFF
 					      : R_ARC_TLS_DTPOFF),
