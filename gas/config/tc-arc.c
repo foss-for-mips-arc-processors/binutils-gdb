@@ -1706,6 +1706,7 @@ parse_opcode_flags (const struct arc_opcode *opcode,
                       /* Found it.  */
                       cl_matches++;
                       pflag->flgp = pf;
+                      pflag->insert = cl_flags->insert;
                       lnflg--;
                       break;
                     }
@@ -1729,6 +1730,7 @@ parse_opcode_flags (const struct arc_opcode *opcode,
                     return false;
                   cl_matches++;
                   pflag->flgp = flg_operand;
+                  pflag->insert = cl_flags->insert;
                   lnflg--;
                   break; /* goto next flag class and parsed flag.  */
                 }
@@ -4146,8 +4148,22 @@ assemble_insn (const struct arc_opcode *opcode,
 	    }
 	}
       else
-	image |= (flg_operand->code & ((1 << flg_operand->bits) - 1))
-	  << flg_operand->shift;
+	{
+	  unsigned int flag_encoding;
+	  flag_encoding = (flg_operand->code & ((1 << flg_operand->bits) - 1));
+
+	  if (pflags[i].insert)
+	    {
+	      /* We can have a special flag which needs an insertion
+		 function.  */
+	      const char *errmsg = NULL;
+	      image = (*pflags[i].insert) (image, flag_encoding, &errmsg);
+	    }
+	  else
+	    {
+	      image |= flag_encoding << flg_operand->shift;
+	    }
+	}
     }
 
   insn->relax = relax_insn_p (opcode, tok, ntok, pflags, nflg);
