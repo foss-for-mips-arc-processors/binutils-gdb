@@ -53,6 +53,29 @@ insert_rb (unsigned long long  insn,
   return insn | ((value & 0x07) << 24) | (((value >> 3) & 0x07) << 12);
 }
 
+/* Insert RB register into a pushl/popl instruction.  */
+
+static unsigned long long
+insert_rbb (unsigned long long  insn,
+	    long long value,
+	    const char **errmsg ATTRIBUTE_UNUSED)
+{
+  return insn | ((value & 0x07) << 8) | (((value >> 3) & 0x07) << 1);
+}
+
+/* Insert RB register pair into a pushdl/popdl instruction.  */
+
+static unsigned long long
+insert_rbb_chk (unsigned long long  insn,
+	    long long value,
+	    const char **errmsg)
+{
+  if (value & 0x01)
+    *errmsg = _("cannot use odd number source register");
+
+  return insert_rbb(insn, value, errmsg);
+}
+
 /* Insert RB register with checks.  */
 
 static unsigned long long
@@ -66,6 +89,26 @@ insert_rb_chk (unsigned long long  insn,
   return insn | ((value & 0x07) << 24) | (((value >> 3) & 0x07) << 12);
 }
 
+/* Insert a floating point register into fs2 slot.  */
+
+static unsigned long long
+insert_fs2 (unsigned long long  insn,
+	    long long value,
+	    const char **errmsg ATTRIBUTE_UNUSED)
+{
+  return insn | ((value & 0x07) << 24) | (((value >> 3) & 0x03) << 12);
+}
+
+/* Insert address writeback mode for 128-bit loads.  */
+
+static unsigned long long
+insert_qq (unsigned long long  insn,
+	   long long value,
+	   const char **errmsg ATTRIBUTE_UNUSED)
+{
+  return insn | ((value & 0x01) << 11) | ((value & 0x02) << (6-1));
+}
+
 static long long
 extract_rb (unsigned long long insn,
 	    bool *invalid)
@@ -76,6 +119,41 @@ extract_rb (unsigned long long insn,
     *invalid = true; /* A limm operand, it should be extracted in a
 			different way.  */
 
+  return value;
+}
+
+static long long
+extract_rbb (unsigned long long insn,
+	    bool *invalid)
+{
+  int value = (((insn >> 1) & 0x07) << 3) | ((insn >> 8) & 0x07);
+
+  if (value == 0x3e && invalid)
+    *invalid = true; /* A limm operand, it should be extracted in a
+			different way.  */
+
+  return value;
+}
+
+/* Extract the floating point register number from fs2 slot.  */
+
+static long long
+extract_fs2 (unsigned long long insn,
+	     bool *invalid ATTRIBUTE_UNUSED)
+{
+  long long value;
+  value = (((insn >> 12) & 0x03) << 3) | ((insn >> 24) & 0x07);
+  return value;
+}
+
+/* Extract address writeback mode for 128-bit loads.  */
+
+static long long
+extract_qq (unsigned long long  insn,
+	    bool *       invalid ATTRIBUTE_UNUSED)
+{
+  long long value;
+  value = ((insn & 0x800) >> 11) | ((insn & 0x40) >> (6 - 1));
   return value;
 }
 
@@ -289,7 +367,8 @@ insert_gp (unsigned long long  insn,
 	   long long           value,
 	   const char **       errmsg)
 {
-  if (value != 26)
+  if (value != 26
+      && value != 30)
     *errmsg = _("register must be GP");
   return insn;
 }
@@ -1601,6 +1680,20 @@ const struct arc_pseudo_insn arc_pseudo_insns[] =
 
 const unsigned arc_num_pseudo_insn =
   sizeof (arc_pseudo_insns) / sizeof (*arc_pseudo_insns);
+
+/* ARC64 pseudo instructions.  */
+const struct arc_pseudo_insn arc64_pseudo_insns[] =
+{
+  { "pushl", "stl", ".aw", 5, { { RC, 0, 0, 0 }, { BRAKET, 1, 0, 1 },
+				{ RB, 1, 28, 2 }, { SIMM9_8, 1, -8, 3 },
+				{ BRAKETdup, 1, 0, 4} } },
+  { "popl", "ldl", ".ab", 5, { { RA, 0, 0, 0 }, { BRAKET, 1, 0, 1 },
+			       { RB, 1, 28, 2 }, { SIMM9_8, 1, 8, 3 },
+			       { BRAKETdup, 1, 0, 4} } },
+};
+
+const unsigned arc64_num_pseudo_insn =
+  sizeof (arc64_pseudo_insns) / sizeof (*arc64_pseudo_insns);
 
 const struct arc_aux_reg arc_aux_regs[] =
 {
