@@ -48,6 +48,10 @@
 #define LP_INSN(x)	 ((MAJOR_OPCODE (x) == 0x4) \
 			  && (SUB_OPCODE (x) == 0x28))
 
+#ifndef DEFAULT_ARCH
+#define DEFAULT_ARCH "arc"
+#endif /* DEFAULT_ARCH.  */
+
 #ifndef TARGET_WITH_CPU
 #define TARGET_WITH_CPU "hs38_linux"
 #endif /* TARGET_WITH_CPU */
@@ -122,6 +126,9 @@ enum arc_rlx_types
 /* Generic assembler global variables which must be defined by all
    targets.  */
 
+/* Default architecture.  */
+static const char default_arch[] = DEFAULT_ARCH;
+
 /* Characters which always start a comment.  */
 const char comment_chars[] = "#;";
 
@@ -142,7 +149,6 @@ const char FLT_CHARS[] = "rRsSfFdD";
 
 /* Byte order.  */
 extern int target_big_endian;
-const char *arc_target_format = DEFAULT_TARGET_FORMAT;
 static int byte_order = DEFAULT_BYTE_ORDER;
 
 /* Arc extension section.  */
@@ -438,25 +444,26 @@ static htab_t arc_aux_hash;
 /* The hash table of address types.  */
 static htab_t arc_addrtype_hash;
 
-#define ARC_CPU_TYPE_A6xx(NAME,EXTRA)			\
-  { #NAME, ARC_OPCODE_ARC600, bfd_mach_arc_arc600,	\
+#define ARC_CPU_TYPE_A6xx(NAME,EXTRA)				\
+  { #NAME, "arc", ARC_OPCODE_ARC600, bfd_mach_arc_arc600,	\
       E_ARC_MACH_ARC600, EXTRA},
-#define ARC_CPU_TYPE_A7xx(NAME,EXTRA)			\
-  { #NAME, ARC_OPCODE_ARC700,  bfd_mach_arc_arc700,	\
+#define ARC_CPU_TYPE_A7xx(NAME,EXTRA)				\
+  { #NAME, "arc", ARC_OPCODE_ARC700,  bfd_mach_arc_arc700,	\
       E_ARC_MACH_ARC700, EXTRA},
-#define ARC_CPU_TYPE_AV2EM(NAME,EXTRA)			\
-  { #NAME,  ARC_OPCODE_ARCv2EM, bfd_mach_arc_arcv2,	\
+#define ARC_CPU_TYPE_AV2EM(NAME,EXTRA)				\
+  { #NAME, "arc", ARC_OPCODE_ARCv2EM, bfd_mach_arc_arcv2,	\
       EF_ARC_CPU_ARCV2EM, EXTRA},
-#define ARC_CPU_TYPE_AV2HS(NAME,EXTRA)			\
-  { #NAME,  ARC_OPCODE_ARCv2HS, bfd_mach_arc_arcv2,	\
+#define ARC_CPU_TYPE_AV2HS(NAME,EXTRA)				\
+  { #NAME, "arc", ARC_OPCODE_ARCv2HS, bfd_mach_arc_arcv2,	\
       EF_ARC_CPU_ARCV2HS, EXTRA},
-#define ARC_CPU_TYPE_NONE				\
-  { 0, 0, 0, 0, 0 }
+#define ARC_CPU_TYPE_NONE			\
+  { 0, 0, 0, 0, 0, 0 }
 
 /* A table of CPU names and opcode sets.  */
 static const struct cpu_type
 {
   const char *name;
+  const char *arch;
   unsigned flags;
   int mach;
   unsigned eflags;
@@ -468,7 +475,7 @@ static const struct cpu_type
 };
 
 /* Information about the cpu/variant we're assembling for.  */
-static struct cpu_type selected_cpu = { 0, 0, 0, E_ARC_OSABI_CURRENT, 0 };
+static struct cpu_type selected_cpu = { 0, 0, 0, 0, E_ARC_OSABI_CURRENT, 0 };
 
 /* TRUE if current assembly code uses RF16 only registers.  */
 static bool rf16_only = true;
@@ -844,7 +851,7 @@ static void
 arc_select_cpu (const char *arg, enum mach_selection_type sel)
 {
   int i;
-  static struct cpu_type old_cpu = { 0, 0, 0, E_ARC_OSABI_CURRENT, 0 };
+  static struct cpu_type old_cpu = { 0, 0, 0, 0, E_ARC_OSABI_CURRENT, 0 };
 
   /* We should only set a default if we've not made a selection from some
      other source.  */
@@ -896,7 +903,7 @@ arc_select_cpu (const char *arg, enum mach_selection_type sel)
   if (mach_selection_mode != MACH_SELECTION_NONE
       && (old_cpu.mach != selected_cpu.mach))
     {
-      bfd_find_target (arc_target_format, stdoutput);
+      bfd_find_target (arc_target_format (), stdoutput);
       if (! bfd_set_arch_mach (stdoutput, bfd_arch_arc, selected_cpu.mach))
 	as_warn (_("Could not set architecture and machine"));
     }
@@ -2906,6 +2913,17 @@ insert_operand (unsigned long long insn,
   return insn;
 }
 
+/* Called by TARGET_FORMAT.  */
+
+const char *
+arc_target_format (void)
+{
+  if (byte_order == LITTLE_ENDIAN)
+    return "elf32-littlearc";
+
+  return "elf32-bigarc";
+}
+
 /* Apply a fixup to the object code.  At this point all symbol values
    should be fully resolved, and we attempt to completely resolve the
    reloc.  If we can not do that, we determine the correct reloc code
@@ -3464,12 +3482,10 @@ md_parse_option (int c, const char *arg ATTRIBUTE_UNUSED)
       }
 
     case OPTION_EB:
-      arc_target_format = "elf32-bigarc";
       byte_order = BIG_ENDIAN;
       break;
 
     case OPTION_EL:
-      arc_target_format = "elf32-littlearc";
       byte_order = LITTLE_ENDIAN;
       break;
 
@@ -3550,6 +3566,9 @@ arc_show_cpu_list (FILE *stream)
   for (i = 0; cpu_types[i].name != NULL; ++i)
     {
       bool last = (cpu_types[i + 1].name == NULL);
+
+      if (strcmp (default_arch, cpu_types[i].arch) != 0)
+	continue;
 
       /* If displaying the new cpu name string, and the ', ' (for all
          but the last one) will take us past a target width of 80
