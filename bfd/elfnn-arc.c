@@ -1825,8 +1825,7 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
 		&& (!IS_ARC_PCREL_TYPE (r_type)
 		    || (h != NULL
 			&& h->dynindx != -1
-			&& !h->def_regular
-			&& (!info->symbolic || !h->def_regular))))
+			&& (!SYMBOL_REFERENCES_LOCAL (info, h)))))
 	      {
 		Elf_Internal_Rela outrel;
 		bfd_byte *loc;
@@ -2086,6 +2085,11 @@ elf_arc_check_relocs (bfd *			 abfd,
 	  if (h)
 	    h->non_got_ref = 1;
 
+	  /* We don't need to handle relocs into sections not going
+	     into the "real" output.  */
+	  if ((sec->flags & SEC_ALLOC) == 0)
+	    break;
+
 	  /* No need to do anything if we're not creating a shared
 	     object.  */
 	  if (!bfd_link_pic (info)
@@ -2100,8 +2104,7 @@ elf_arc_check_relocs (bfd *			 abfd,
 	    break;
 
 	  if (((r_type != R_ARC_PC32 && r_type != R_ARC_32_PCREL)
-	       || (h != NULL
-		   && (!info->symbolic || !h->def_regular))))
+	       || (!SYMBOL_REFERENCES_LOCAL (info, h))))
 	    {
 	      if (sreloc == NULL)
 		{
