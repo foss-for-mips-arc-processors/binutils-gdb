@@ -17,6 +17,10 @@ eaixppc.c
 eaixrs6.c
 ealpha.c
 ealphavms.c
+earc64elf32.c
+earc64elf64.c
+earc64linux32.c
+earc64linux64.c
 earcelf.c
 earclinux.c
 earclinux_nps.c
