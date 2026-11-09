@@ -48,28 +48,24 @@
 #undef  BIG_ENDIAN
 #define BIG_ENDIAN      4321
 
-#ifdef TARGET_BYTES_BIG_ENDIAN
-
-# define DEFAULT_TARGET_FORMAT  "elf32-bigarc"
-# define DEFAULT_BYTE_ORDER     BIG_ENDIAN
-
-#else
+#ifndef TARGET_BYTES_BIG_ENDIAN
 /* You should define this macro to be non-zero if the target is big
    endian, and zero if the target is little endian.  */
-# define TARGET_BYTES_BIG_ENDIAN 0
+#define TARGET_BYTES_BIG_ENDIAN 0
+#endif
 
+#if TARGET_BYTES_BIG_ENDIAN == 1
+# define DEFAULT_TARGET_FORMAT  "elf32-bigarc"
+# define DEFAULT_BYTE_ORDER     BIG_ENDIAN
+#else
 # define DEFAULT_TARGET_FORMAT  "elf32-littlearc"
 # define DEFAULT_BYTE_ORDER     LITTLE_ENDIAN
-
 #endif /* TARGET_BYTES_BIG_ENDIAN.  */
-
-/* The endianness of the target format may change based on command
-   line arguments.  */
-extern const char *arc_target_format;
 
 /* This macro is the BFD target name to use when creating the output
    file.  This will normally depend upon the `OBJ_FMT' macro.  */
-#define TARGET_FORMAT arc_target_format
+#define TARGET_FORMAT arc_target_format()
+extern const char *arc_target_format (void);
 
 /* `md_short_jump_size'
    `md_long_jump_size'
