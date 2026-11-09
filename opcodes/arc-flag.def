@@ -108,7 +108,7 @@ FLAG(SIZED, "dd", 8, 0, 0, 0)
   /* Fake Flags.  */
 FLAG(NE, "ne", 0, 0, 0, 1)
 
-/* ARC NPS400 Support: See comment near head of arc-opc.c file.  */
+/* ARC NPS400 Support: See comment near head of arcxx-opc.inc file.  */
 FLAG(NPS_CL, "cl", 0, 0, 0, 1)
 FLAG(NPS_NA, "na", 1, 1, 9, 1)
 FLAG(NPS_SR, "s", 1, 1, 13, 1)
