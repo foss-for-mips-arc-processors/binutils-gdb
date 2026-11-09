@@ -440,16 +440,16 @@ static htab_t arc_addrtype_hash;
 
 #define ARC_CPU_TYPE_A6xx(NAME,EXTRA)			\
   { #NAME, ARC_OPCODE_ARC600, bfd_mach_arc_arc600,	\
-      E_ARC_MACH_ARC600, EXTRA}
+      E_ARC_MACH_ARC600, EXTRA},
 #define ARC_CPU_TYPE_A7xx(NAME,EXTRA)			\
   { #NAME, ARC_OPCODE_ARC700,  bfd_mach_arc_arc700,	\
-      E_ARC_MACH_ARC700, EXTRA}
+      E_ARC_MACH_ARC700, EXTRA},
 #define ARC_CPU_TYPE_AV2EM(NAME,EXTRA)			\
   { #NAME,  ARC_OPCODE_ARCv2EM, bfd_mach_arc_arcv2,	\
-      EF_ARC_CPU_ARCV2EM, EXTRA}
+      EF_ARC_CPU_ARCV2EM, EXTRA},
 #define ARC_CPU_TYPE_AV2HS(NAME,EXTRA)			\
   { #NAME,  ARC_OPCODE_ARCv2HS, bfd_mach_arc_arcv2,	\
-      EF_ARC_CPU_ARCV2HS, EXTRA}
+      EF_ARC_CPU_ARCV2HS, EXTRA},
 #define ARC_CPU_TYPE_NONE				\
   { 0, 0, 0, 0, 0 }
 

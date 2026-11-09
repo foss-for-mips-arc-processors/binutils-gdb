@@ -826,13 +826,13 @@ parse_option (struct arc_disassemble_info *arc_infop, const char *option)
 }
 
 #define ARC_CPU_TYPE_A6xx(NAME,EXTRA)			\
-  { #NAME, ARC_OPCODE_ARC600, "ARC600" }
+  { #NAME, ARC_OPCODE_ARC600, "ARC600" },
 #define ARC_CPU_TYPE_A7xx(NAME,EXTRA)			\
-  { #NAME, ARC_OPCODE_ARC700, "ARC700" }
+  { #NAME, ARC_OPCODE_ARC700, "ARC700" },
 #define ARC_CPU_TYPE_AV2EM(NAME,EXTRA)			\
-  { #NAME,  ARC_OPCODE_ARCv2EM, "ARC EM" }
+  { #NAME,  ARC_OPCODE_ARCv2EM, "ARC EM" },
 #define ARC_CPU_TYPE_AV2HS(NAME,EXTRA)			\
-  { #NAME,  ARC_OPCODE_ARCv2HS, "ARC HS" }
+  { #NAME,  ARC_OPCODE_ARCv2HS, "ARC HS" },
 #define ARC_CPU_TYPE_NONE				\
   { 0, 0, 0 }
 
