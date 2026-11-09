@@ -151,7 +151,6 @@ elf-vxworks.c
 elf-vxworks.h
 elf.c
 elf32-am33lin.c
-elf32-arc.c
 elf32-arm.c
 elf32-arm.h
 elf32-avr.c
