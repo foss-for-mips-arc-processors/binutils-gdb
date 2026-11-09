@@ -356,11 +356,15 @@ find_format_from_table (struct disassemble_info *info,
 
 	  for (flgopridx = cl_flags->flags; *flgopridx; ++flgopridx)
 	    {
+	      bool tmp = false;
 	      const struct arc_flag_operand *flg_operand =
 		&arc_flag_operands[*flgopridx];
 
-	      value = (insn >> flg_operand->shift)
-		& ((1 << flg_operand->bits) - 1);
+	      if (cl_flags->extract)
+		value = (*cl_flags->extract)(insn, &tmp);
+	      else
+		value = (insn >> flg_operand->shift)
+		  & ((1 << flg_operand->bits) - 1);
 	      if (value == flg_operand->code)
 		foundA = 1;
 	      if (value)
@@ -560,8 +564,14 @@ print_flags (const struct arc_opcode *opcode,
 	  if (!flg_operand->favail)
 	    continue;
 
-	  value = (insn[0] >> flg_operand->shift)
-	    & ((1 << flg_operand->bits) - 1);
+	  if (cl_flags->extract)
+	    {
+	      bool tmp = false;
+	      value = (*cl_flags->extract)(insn[0], &tmp);
+	    }
+	  else
+	    value = (insn[0] >> flg_operand->shift)
+	      & ((1 << flg_operand->bits) - 1);
 	  if (value == flg_operand->code)
 	    {
 	       /* FIXME!: print correctly nt/t flag.  */
