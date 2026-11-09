@@ -118,4 +118,4 @@ struct plt_version_t
 
 extern struct plt_version_t plt_versions[PLT_MAX];
 
-#endif /* ARC_PLT_H */
+#endif

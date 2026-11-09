@@ -24,11 +24,21 @@
 
 /* Thread Control Block (TCB) contains at offset zero a pointer to the
    dynamic thread vector dtvt for the thread.  */
+#if ARCH_SIZE == 32
 #define TCB_SIZE (8)
+#else
+#define TCB_SIZE (16)
+#endif
 
+#if ARCH_SIZE == 32
 #define GOT_ENTRY_SIZE 4
 #define write_in_got(A, B, C) bfd_put_32 (A, B, C)
 #define read_from_got(A, B) bfd_get_32 (A, B)
+#else
+#define GOT_ENTRY_SIZE 8
+#define write_in_got(A, B, C) bfd_put_64 (A, B, C)
+#define read_from_got(A, B) bfd_get_64 (A, B)
+#endif
 
 #define	align_power(addr, align)	\
   (((addr) + ((bfd_vma) 1 << (align)) - 1) & (-((bfd_vma) 1 << (align))))
@@ -506,10 +516,11 @@ create_got_dynrelocs_for_got_info (struct got_entry **list_p,
 				   struct bfd_link_info *  info,
 				   struct elf_link_hash_entry *h)
 {
+  struct got_entry *list = *list_p;
+
   if (list_p == NULL)
     return;
 
-  struct got_entry *list = *list_p;
   /* Traverse the list of got entries for this symbol.  */
   while (list)
     {
