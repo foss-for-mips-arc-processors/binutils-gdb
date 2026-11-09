@@ -1357,6 +1357,8 @@ enum arc_flag_class_enum {
 #define FLAG_CLASS(NAME, CLASS, INSERT_FN, EXTRACT_FN, ...) \
   [C_##NAME] = { \
     .flag_class = CLASS, \
+    .insert = INSERT_FN, \
+    .extract = EXTRACT_FN, \
     .flags = { __VA_ARGS__, F_NULL } \
   },
 const struct arc_flag_class arc_flag_classes[C_SIZE] =

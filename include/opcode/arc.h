@@ -370,6 +370,16 @@ struct arc_flag_class
 
   /* List of valid flags (codes).  */
   unsigned flags[256];
+
+  /* Some special cases needs to use insert/extract functions for
+     flags as well.  The function prototypes are identically like the
+     one used for insertion/extraction of an operand.  The reason
+     beeing the ability of reusing these functions.  */
+  unsigned long long (*insert) (unsigned long long instruction,
+				long long int op,
+				const char **errmsg);
+  long long int (*extract) (unsigned long long instruction,
+			    bool *invalid);
 };
 
 extern const struct arc_flag_class arc_flag_classes[];
