@@ -45,6 +45,7 @@ cpu-aarch64.h
 cpu-alpha.c
 cpu-amdgcn.c
 cpu-arc.c
+cpu-arc64.c
 cpu-arm.c
 cpu-arm.h
 cpu-avr.c
