@@ -1489,6 +1489,7 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
       struct elf_link_hash_entry *h2;
       const char *msg;
       bool unresolved_reloc = false;
+      bool resolved_to_zero;
 
       struct arc_relocation_data reloc_data =
       {
@@ -1630,6 +1631,8 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
 	  continue;
 	}
 
+      resolved_to_zero = (h != NULL && UNDEFWEAK_NO_DYNAMIC_RELOC (info, h));
+
       if (r_symndx < symtab_hdr->sh_info) /* A local symbol.  */
 	{
 	  reloc_data.sym_value = sym->st_value;
@@ -1738,7 +1741,8 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
 		  reloc_data.sym_section = htab->splt;
 		  reloc_data.should_relocate = true;
 		}
-	      else
+	      /* See pr22269.  */
+	      else if (!resolved_to_zero)
 		continue;
 	    }
 	  else
@@ -1776,7 +1780,8 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
 	}
 
       if ((is_reloc_for_GOT (howto)
-	   || is_reloc_for_TLS (howto)))
+	   || is_reloc_for_TLS (howto))
+	  && !resolved_to_zero)
 	{
 	  reloc_data.should_relocate = true;
 
@@ -1815,6 +1820,7 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
 	  case R_ARC_PC32:
 	  case R_ARC_32_PCREL:
 	    if (bfd_link_pic (info)
+		&& !resolved_to_zero
 		&& (input_section->flags & SEC_ALLOC) != 0
 		&& (!IS_ARC_PCREL_TYPE (r_type)
 		    || (h != NULL
@@ -1910,7 +1916,8 @@ elf_arc_relocate_section (struct bfd_link_info *  info,
       /* Make sure we have with a dynamic linker.  In case of GOT and PLT
 	 the sym_section should point to .got or .plt respectively.  */
       if ((is_reloc_for_GOT (howto) || is_reloc_for_PLT (howto))
-	  && reloc_data.sym_section == NULL)
+	  && reloc_data.sym_section == NULL
+	  && !resolved_to_zero)
 	{
 	  _bfd_error_handler
 	    (_("GOT and PLT relocations cannot be fixed with a non dynamic linker"));
@@ -2072,39 +2079,48 @@ elf_arc_check_relocs (bfd *			 abfd,
 	      return false;
 	    }
 
-	    /* In some cases we are not setting the 'non_got_ref'
-	       flag, even though the relocations don't require a GOT
-	       access.  We should extend the testing in this area to
-	       ensure that no significant cases are being missed.  */
-	    if (h)
-	      h->non_got_ref = 1;
-	    /* FALLTHROUGH */
-	  case R_ARC_PC32:
-	  case R_ARC_32_PCREL:
-	    if ((bfd_link_pic (info))
-		&& ((r_type != R_ARC_PC32 && r_type != R_ARC_32_PCREL)
-		    || (h != NULL
-			&& (!info->symbolic || !h->def_regular))))
-	      {
-		if (sreloc == NULL)
-		  {
-		    if (info->dynamic
-			&& ! htab->dynamic_sections_created
-			&& ! bfd_elf_link_create_dynamic_sections (abfd, info))
-		      return false;
-		    sreloc = _bfd_elf_make_dynamic_reloc_section (sec, dynobj,
-								  2, abfd,
-								  /*rela*/
-								  true);
+	  /* In some cases we are not setting the 'non_got_ref' flag,
+	     even though the relocations don't require a GOT access.
+	     We should extend the testing in this area to ensure that
+	     no significant cases are being missed.  */
+	  if (h)
+	    h->non_got_ref = 1;
 
-		    if (sreloc == NULL)
-		      return false;
-		  }
-		sreloc->size += sizeof (ElfNN_External_Rela);
-
-	      }
-	  default:
+	  /* No need to do anything if we're not creating a shared
+	     object.  */
+	  if (!bfd_link_pic (info)
+	      || (h != NULL
+		  && UNDEFWEAK_NO_DYNAMIC_RELOC (info, h)))
 	    break;
+
+	  /* fall through */
+	case R_ARC_PC32:
+	case R_ARC_32_PCREL:
+	  if (!bfd_link_pic (info))
+	    break;
+
+	  if (((r_type != R_ARC_PC32 && r_type != R_ARC_32_PCREL)
+	       || (h != NULL
+		   && (!info->symbolic || !h->def_regular))))
+	    {
+	      if (sreloc == NULL)
+		{
+		  if (info->dynamic
+		      && ! htab->dynamic_sections_created
+		      && ! bfd_elf_link_create_dynamic_sections (abfd, info))
+		    return false;
+		  sreloc = _bfd_elf_make_dynamic_reloc_section (sec, dynobj,
+								2, abfd,
+								/* rela */
+								true);
+
+		  if (sreloc == NULL)
+		    return false;
+		}
+	      sreloc->size += sizeof (ElfNN_External_Rela);
+	    }
+	default:
+	  break;
 	}
 
       if (is_reloc_for_PLT (howto))
