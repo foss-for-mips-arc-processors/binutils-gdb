@@ -268,49 +268,6 @@ arc_fill_got_info_for_reloc (enum tls_type_e type,
   return true;
 }
 
-struct arc_static_sym_data {
-  bfd_vma sym_value;
-  const char *symbol_name;
-};
-
-static struct arc_static_sym_data
-get_static_sym_data (unsigned long  r_symndx,
-		     Elf_Internal_Sym  *local_syms,
-		     asection **local_sections,
-		     struct elf_link_hash_entry *h,
-		     struct arc_relocation_data *reloc_data)
-{
-  static const char local_name[] = "(local)";
-  struct arc_static_sym_data ret = { 0, NULL };
-
-  if (h != NULL)
-    {
-      BFD_ASSERT (h->root.type != bfd_link_hash_undefweak
-		  && h->root.type != bfd_link_hash_undefined);
-      /* TODO: This should not be here.  */
-      reloc_data->sym_value = h->root.u.def.value;
-      reloc_data->sym_section = h->root.u.def.section;
-
-      ret.sym_value = h->root.u.def.value
-	+ h->root.u.def.section->output_section->vma
-	+ h->root.u.def.section->output_offset;
-
-      ret.symbol_name = h->root.root.string;
-    }
-  else
-  {
-    Elf_Internal_Sym *sym = local_syms + r_symndx;
-    asection *sec = local_sections[r_symndx];
-
-    ret.sym_value = sym->st_value
-      + sec->output_section->vma
-      + sec->output_offset;
-
-    ret.symbol_name = local_name;
-  }
-  return ret;
-}
-
 static bfd_vma
 relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 				      enum tls_type_e		   type,
@@ -338,91 +295,84 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 	      && SYMBOL_REFERENCES_LOCAL (info, h))))
     {
       const char ATTRIBUTE_UNUSED *symbol_name;
-      asection *tls_sec = elf_hash_table (info)->tls_sec;
+      static const char *local_name = "(local)";
+      bfd_vma sym_value = 0;
+      asection *sec = NULL;
+
+      if (h != NULL)
+	{
+	  reloc_data->sym_value = h->root.u.def.value;
+	  reloc_data->sym_section = h->root.u.def.section;
+
+	  sec = h->root.u.def.section;
+	  sym_value = h->root.u.def.value;
+	  symbol_name = h->root.root.string;
+	}
+      else
+	{
+	  Elf_Internal_Sym *sym = local_syms + r_symndx;
+
+	  sec = local_sections[r_symndx];
+	  sym_value = sym->st_value;
+	  symbol_name = local_name;
+	}
 
       if (entry && !entry->processed)
 	{
+	  int tcb_size = 0;
+
 	  switch (entry->type)
 	    {
+	    case GOT_TLS_IE:
+	      tcb_size = TCB_SIZE;
+	      /* Fall through.  */
 	    case GOT_TLS_GD:
 	      {
-		BFD_ASSERT (tls_sec && tls_sec->output_section);
-		bfd_vma sec_vma = tls_sec->output_section->vma;
+		asection *tls_sec = elf_hash_table (info)->tls_sec;
 
-		if (h == NULL || h->forced_local
-		   || !elf_hash_table (info)->dynamic_sections_created)
+		BFD_ASSERT (tls_sec && tls_sec->output_section);
+		bfd_vma tls_vma = tls_sec->output_section->vma;
+
+		BFD_ASSERT (sec->output_section);
+		sym_value += sec->output_section->vma + sec->output_offset;
+
+		if (h == NULL
+		    || h->forced_local
+		    || !elf_hash_table (info)->dynamic_sections_created)
 		  {
-		    struct arc_static_sym_data tmp =
-		      get_static_sym_data (r_symndx, local_syms, local_sections,
-					   h, reloc_data);
+		    write_in_got
+		      (output_bfd,
+		       /* S - TLS_REL + { round (TCB_SIZE, align), 0 }  */
+		       sym_value - tls_vma
+		       + (elf_hash_table (info)->dynamic_sections_created
+			  ? 0 : (align_power (tcb_size,
+					      tls_sec->alignment_power))),
+		       htab->sgot->contents + entry->offset
+		       + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
+			  ? GOT_ENTRY_SIZE : 0));
 
-		    write_in_got (output_bfd,
-			      tmp.sym_value - sec_vma
-			      + (elf_hash_table (info)->dynamic_sections_created
-				 ? 0
-				 : (align_power (0,
-						 tls_sec->alignment_power))),
-			      htab->sgot->contents + entry->offset
-			      + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-				 ? GOT_ENTRY_SIZE : 0));
-
-		    ARC_DEBUG ("arc_info: FIXED -> %s value = %#lx "
-			  "@ %lx, for symbol %s\n",
-			  (entry->type == GOT_TLS_GD ? "GOT_TLS_GD" :
-			   "GOT_TLS_IE"),
-			  (long) (sym_value - sec_vma),
-			  (long) (htab->sgot->output_section->vma
-			     + htab->sgot->output_offset
-			     + entry->offset
-			     + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-				? GOT_ENTRY_SIZE : 0)),
-			  tmp.symbol_name);
+		    ARC_DEBUG
+		      ("arc_info: FIXED -> %s value = %#lx "
+		       "@ %lx, for symbol %s\n",
+		       (entry->type == GOT_TLS_GD ? "GOT_TLS_GD" :
+			"GOT_TLS_IE"),
+		       (long) (sym_value - tls_vma),
+		       (long) (htab->sgot->output_section->vma
+			       + htab->sgot->output_offset
+			       + entry->offset
+			       + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
+				  ? GOT_ENTRY_SIZE : 0)),
+		       symbol_name);
 		  }
-	      }
-	      break;
-
-	    case GOT_TLS_IE:
-	      {
-		BFD_ASSERT (tls_sec && tls_sec->output_section);
-		bfd_vma ATTRIBUTE_UNUSED sec_vma
-		  = tls_sec->output_section->vma;
-
-		struct arc_static_sym_data tmp =
-		  get_static_sym_data (r_symndx, local_syms, local_sections,
-				       h, reloc_data);
-
-		write_in_got (output_bfd,
-			      tmp.sym_value - sec_vma
-			      + (elf_hash_table (info)->dynamic_sections_created
-				 ? 0
-				 : (align_power (TCB_SIZE,
-						 tls_sec->alignment_power))),
-			      htab->sgot->contents + entry->offset
-			      + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-				 ? GOT_ENTRY_SIZE : 0));
-
-		ARC_DEBUG ("arc_info: FIXED -> %s value = %#lx "
-			   "@ %p, for symbol %s\n",
-			   (entry->type == GOT_TLS_GD ? "GOT_TLS_GD" :
-			    "GOT_TLS_IE"),
-			   (long) (sym_value - sec_vma),
-			   (long) (htab->sgot->output_section->vma
-			      + htab->sgot->output_offset
-			      + entry->offset
-			      + (entry->existing_entries == TLS_GOT_MOD_AND_OFF
-				 ? GOT_ENTRY_SIZE : 0)),
-			   tmp.symbol_name);
 	      }
 	      break;
 
 	    case GOT_NORMAL:
 	      {
-		bfd_vma sec_vma
-		  = reloc_data->sym_section->output_section->vma
-		  + reloc_data->sym_section->output_offset;
-
-		if (h != NULL
-		    && h->root.type == bfd_link_hash_undefweak)
+		if (h != NULL &&
+		    (h->root.type == bfd_link_hash_undefweak
+		     /* FIXME! catch the undefined situation in a test.  */
+		     || h->root.type == bfd_link_hash_undefined))
 		  ARC_DEBUG ("arc_info: PATCHED: NOT_PATCHED "
 			     "@ %#08lx for sym %s in got offset %#lx "
 			     "(is undefweak)\n",
@@ -433,12 +383,16 @@ relocate_fix_got_relocs_for_got_info (struct got_entry **	   list_p,
 			     (long) entry->offset);
 		else
 		  {
+		    BFD_ASSERT (sec->output_section);
+
+		    sym_value += sec->output_section->vma + sec->output_offset;
+
 		    write_in_got (output_bfd,
-				  reloc_data->sym_value + sec_vma,
+				  sym_value,
 				  htab->sgot->contents + entry->offset);
 		    ARC_DEBUG ("arc_info: PATCHED: %#08lx "
 			       "@ %#08lx for sym %s in got offset %#lx\n",
-			       (long) (reloc_data->sym_value + sec_vma),
+			       (long) sym_value,
 			       (long) (htab->sgot->output_section->vma
 				       + htab->sgot->output_offset
 				       + entry->offset),
