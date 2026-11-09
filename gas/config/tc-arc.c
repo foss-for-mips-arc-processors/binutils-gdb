@@ -54,7 +54,7 @@
 
 #ifndef TARGET_WITH_CPU
 #define TARGET_WITH_CPU "hs38_linux"
-#endif /* TARGET_WITH_CPU */
+#endif /* TARGET_WITH_CPU.  */
 
 #define ARC_GET_FLAG(s)   	(*symbol_get_tc (s))
 #define ARC_SET_FLAG(s,v) 	(*symbol_get_tc (s) |= (v))
@@ -171,6 +171,9 @@ const pseudo_typeS md_pseudo_table[] =
 {
   /* Make sure that .word is 32 bits.  */
   { "word", cons, 4 },
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+  { "xword", cons, 8},
+#endif
 
   { "align",   s_align_bytes, 0 }, /* Defaulting is invalid (0).  */
   { "lcomm",   arc_lcomm, 0 },
@@ -193,7 +196,14 @@ const char md_shortopts[] = "";
 
 enum options
 {
-  OPTION_EB = OPTION_MD_BASE,
+  OPTION_MCPU = OPTION_MD_BASE,
+
+  OPTION_CD,
+  OPTION_RELAX,
+  OPTION_LINKER_RELAX,
+
+#if !defined (TARGET_ARCv3_64) && !defined (TARGET_ARCv3_32)
+  OPTION_EB,
   OPTION_EL,
 
   OPTION_ARC600,
@@ -202,9 +212,6 @@ enum options
   OPTION_ARCEM,
   OPTION_ARCHS,
 
-  OPTION_MCPU,
-  OPTION_CD,
-  OPTION_RELAX,
   OPTION_NPS400,
 
   OPTION_SPFP,
@@ -233,13 +240,19 @@ enum options
   OPTION_LOCK,
   OPTION_SWAPE,
   OPTION_RTSC
+#endif
 };
 
 const struct option md_longopts[] =
 {
+  { "mcpu",		required_argument, NULL, OPTION_MCPU },
+  { "mcode-density",	no_argument,	   NULL, OPTION_CD },
+  { "mrelax",		no_argument,	   NULL, OPTION_RELAX },
+  { "mlinker-relax",	no_argument,	   NULL, OPTION_LINKER_RELAX },
+
+#if !defined (TARGET_ARCv3_64) && !defined (TARGET_ARCv3_32)
   { "EB",		no_argument,	   NULL, OPTION_EB },
   { "EL",		no_argument,	   NULL, OPTION_EL },
-  { "mcpu",		required_argument, NULL, OPTION_MCPU },
   { "mA6",		no_argument,	   NULL, OPTION_ARC600 },
   { "mARC600",		no_argument,	   NULL, OPTION_ARC600 },
   { "mARC601",		no_argument,	   NULL, OPTION_ARC601 },
@@ -247,8 +260,6 @@ const struct option md_longopts[] =
   { "mA7",		no_argument,	   NULL, OPTION_ARC700 },
   { "mEM",		no_argument,	   NULL, OPTION_ARCEM },
   { "mHS",		no_argument,	   NULL, OPTION_ARCHS },
-  { "mcode-density",	no_argument,	   NULL, OPTION_CD },
-  { "mrelax",           no_argument,       NULL, OPTION_RELAX },
   { "mnps400",          no_argument,       NULL, OPTION_NPS400 },
 
   /* Floating point options */
@@ -294,6 +305,7 @@ const struct option md_longopts[] =
   { "mlock", no_argument, NULL, OPTION_LOCK},
   { "mswape", no_argument, NULL, OPTION_SWAPE},
   { "mrtsc", no_argument, NULL, OPTION_RTSC},
+#endif
 
   { NULL,		no_argument, NULL, 0 }
 };
@@ -444,6 +456,7 @@ static htab_t arc_aux_hash;
 /* The hash table of address types.  */
 static htab_t arc_addrtype_hash;
 
+#if !defined (TARGET_ARCv3_64) && !defined (TARGET_ARCv3_32)
 #define ARC_CPU_TYPE_A6xx(NAME,EXTRA)				\
   { #NAME, "arc", ARC_OPCODE_ARC600, bfd_mach_arc_arc600,	\
       E_ARC_MACH_ARC600, EXTRA},
@@ -456,6 +469,20 @@ static htab_t arc_addrtype_hash;
 #define ARC_CPU_TYPE_AV2HS(NAME,EXTRA)				\
   { #NAME, "arc", ARC_OPCODE_ARCv2HS, bfd_mach_arc_arcv2,	\
       EF_ARC_CPU_ARCV2HS, EXTRA},
+# define ARC_CPU_TYPE_A64x(NAME,EXTRA)
+# define ARC_CPU_TYPE_A32x(NAME,EXTRA)
+#else
+# define ARC_CPU_TYPE_A6xx(NAME,EXTRA)
+# define ARC_CPU_TYPE_A7xx(NAME,EXTRA)
+# define ARC_CPU_TYPE_AV2EM(NAME,EXTRA)
+# define ARC_CPU_TYPE_AV2HS(NAME,EXTRA)
+# define ARC_CPU_TYPE_A64x(NAME,EXTRA)				\
+  { #NAME, "arc64", ARC_OPCODE_ARC64, bfd_mach_arcv3_64,	\
+      EF_ARC_CPU_ARC64, EXTRA},
+# define ARC_CPU_TYPE_A32x(NAME,EXTRA)				\
+  { #NAME, "arc64", ARC_OPCODE_ARC32, bfd_mach_arcv3_32,	\
+      0x00, EXTRA},
+#endif
 #define ARC_CPU_TYPE_NONE			\
   { 0, 0, 0, 0, 0, 0 }
 
@@ -507,7 +534,14 @@ static unsigned cl_features = 0;
 #define O_tpoff   O_md9     /* @tpoff relocation.  */
 #define O_dtpoff9 O_md10    /* @dtpoff9 relocation.  */
 #define O_dtpoff  O_md11    /* @dtpoff relocation.  */
-#define O_last    O_dtpoff
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+# define O_u32     O_md12    /* @u32 modifier.  */
+# define O_s32     O_md13    /* @s32 modifier.  */
+# define O_plt34   O_md14    /* @plt34 relocation.  */
+# define O_last    O_md14
+#else
+# define O_last    O_md11
+#endif
 
 /* Used to define a bracket as operand in tokens.  */
 #define O_bracket O_md32
@@ -560,6 +594,11 @@ static const struct arc_reloc_op_tag
   DEF (tpoff,   BFD_RELOC_ARC_TLS_LE_32,	1),
   DEF (dtpoff9, BFD_RELOC_ARC_TLS_DTPOFF_S9,	0),
   DEF (dtpoff,  BFD_RELOC_ARC_TLS_DTPOFF,	1),
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+  DEF (u32,	BFD_RELOC_ARC_LO32_ME,		1),
+  DEF (s32,	BFD_RELOC_ARC_32_ME,		1),
+  DEF (plt34,	BFD_RELOC_ARC_PLT34,		0),
+#endif
 };
 
 static const int arc_num_reloc_op
@@ -904,7 +943,7 @@ arc_select_cpu (const char *arg, enum mach_selection_type sel)
       && (old_cpu.mach != selected_cpu.mach))
     {
       bfd_find_target (arc_target_format (), stdoutput);
-      if (! bfd_set_arch_mach (stdoutput, bfd_arch_arc, selected_cpu.mach))
+      if (! bfd_set_arch_mach (stdoutput, TARGET_ARCH, selected_cpu.mach))
 	as_warn (_("Could not set architecture and machine"));
     }
 
@@ -1101,6 +1140,11 @@ debug_exp (expressionS *t)
     case O_tpoff:		namemd = "O_tpoff";		break;
     case O_dtpoff9:		namemd = "O_dtpoff9";		break;
     case O_dtpoff:		namemd = "O_dtpoff";		break;
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+    case O_u32:			namemd = "O_u32";		break;
+    case O_s32:			namemd = "O_s32";		break;
+    case O_plt34:		namemd = "O_plt34";		break;
+#endif
     }
 
   pr_debug ("%s (%s, %s, %d, %s)", name,
@@ -1125,10 +1169,13 @@ parse_reloc_symbol (expressionS *resultP)
   expressionS right;
   symbolS *base;
 
+  /* We want to use @u32 and @s32 to force immediates into long
+     field.  */
   /* A relocation operand has the following form
      @identifier@relocation_type.  The identifier is already in
      tok!  */
-  if (resultP->X_op != O_symbol)
+  if (resultP->X_op != O_constant
+      && resultP->X_op != O_symbol)
     {
       as_bad (_("No valid label relocation operand"));
       resultP->X_op = O_illegal;
@@ -1156,6 +1203,12 @@ parse_reloc_symbol (expressionS *resultP)
     {
       as_bad (_("Unknown relocation operand: @%s"), reloc_name);
       resultP->X_op = O_illegal;
+      return;
+    }
+
+  if (resultP->X_op == O_constant)
+    {
+      resultP->X_md = r->op;
       return;
     }
 
@@ -1253,8 +1306,11 @@ tokenize_arguments (char *str,
 	  ++num_args;
 	  break;
 
-	case '{':
 	case '[':
+	  /* Silence the error detection.  */
+	  saw_comma = true;
+	  /* Fall through.  */
+	case '{':
 	  input_line_pointer++;
 	  if (brk_lvl || num_args == ntok)
 	    goto err;
@@ -1775,6 +1831,7 @@ find_opcode_match (const struct arc_opcode_hash_entry *entry,
   int bkntok, maxerridx = 0;
   expressionS emptyE;
   const char *tmpmsg = NULL;
+  unsigned int tmp ATTRIBUTE_UNUSED = 0;
 
   arc_opcode_hash_entry_iterator_init (&iter);
   memset (&emptyE, 0, sizeof (emptyE));
@@ -1895,6 +1952,24 @@ find_opcode_match (const struct arc_opcode_hash_entry *entry,
                 goto match_failed;
               break;
 
+	    case (ARC_OPERAND_LIMM | ARC_OPERAND_SIGNED):
+		/* Signed extended 32 bit, only available for ARC64.  */
+		if (tok[tokidx].X_op == O_constant)
+		  {
+		    offsetT val = tok[tokidx].X_add_number;
+		    const offsetT min = -(1LL << 31);
+		    const offsetT max = (1LL << 31) - 1;
+
+		    if (val > max || val < min)
+		      goto match_failed;
+		    break;
+		  }
+		/* By default a symbol is zero extended.  */
+		else if (tok[tokidx].X_op == O_symbol
+		    && tok[tokidx].X_md == O_absent)
+		  goto match_failed;
+
+	      /* Fall through.  */
 	    case ARC_OPERAND_LIMM:
 	    case ARC_OPERAND_SIGNED:
 	    case ARC_OPERAND_UNSIGNED:
@@ -1953,6 +2028,12 @@ find_opcode_match (const struct arc_opcode_hash_entry *entry,
 		  }
 		  /* Fall through.  */
 		case O_constant:
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+		  /* Check if we want limm.  */
+		  if (tok[tokidx].X_md == O_u32
+		      && !(operand->flags & ARC_OPERAND_LIMM))
+		    goto match_failed;
+#endif
 		  /* Check the range.  */
 		  if (operand->bits != 32
 		      && !(operand->flags & ARC_OPERAND_NCHK))
@@ -2040,15 +2121,30 @@ find_opcode_match (const struct arc_opcode_hash_entry *entry,
 
 		  /* Relocs requiring long immediate.  FIXME! make it
 		     generic and move it to a function.  */
+		  tmp = ARC_OPERAND_SIGNED;
 		  switch (tok[tokidx].X_md)
 		    {
-		    case O_gotoff:
+		      /* All offsets needs to be mapped into a signed
+			 limm.  */
 		    case O_gotpc:
-		    case O_pcl:
 		    case O_tpoff:
-		    case O_dtpoff:
-		    case O_tlsgd:
 		    case O_tlsie:
+		    case O_tlsgd:
+		    case O_pcl:
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+		    case O_plt34:
+		    case O_s32:
+		      /* Fail if is not signed (ARC64 only).  */
+		      tmp = (selected_cpu.mach == bfd_mach_arcv3_64) ? 0 : tmp;
+		      /* Fall through.  */
+		    case O_u32:
+		      if ((operand->flags & ARC_OPERAND_SIGNED) == tmp)
+			goto match_failed;
+		      /* Fall through.  */
+#else
+		    case O_gotoff: /* Not generated by ARC64.  */
+		    case O_dtpoff: /* Not generated by ARC64.  */
+#endif
 		      if (!(operand->flags & ARC_OPERAND_LIMM))
 			goto match_failed;
 		      /* Fall through.  */
@@ -2234,6 +2330,25 @@ find_pseudo_insn (const char *opname,
 	    return pseudo_insn;
 	}
     }
+
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+  /* ARC64 pseudo instructions.  */
+  for (i = 0; i < arc64_num_pseudo_insn; i++)
+    {
+      pseudo_insn = &arc64_pseudo_insns[i];
+      if (strcmp (pseudo_insn->mnemonic_p, opname) == 0)
+	{
+	  op = pseudo_insn->operand;
+	  for (j = 0; j < ntok; ++j)
+	    if (!pseudo_operand_match (&tok[j], &op[j]))
+	      break;
+
+	  /* Found the right instruction.  */
+	  if (j == ntok)
+	    return pseudo_insn;
+	}
+    }
+#endif
   return NULL;
 }
 
@@ -2430,6 +2545,9 @@ autodetect_attributes (const struct arc_opcode *opcode,
 	case O_gotoff:
 	case O_gotpc:
 	case O_plt:
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+	case O_plt34:
+#endif
 	  pic_option = 2;
 	  break;
 	case O_sda:
@@ -2589,6 +2707,27 @@ declare_register_set (void)
     }
 }
 
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+/* Helper use for declaration of fp refisters.  */
+static void
+declare_fp_set (void)
+{
+  int i;
+  for (i = 0; i < 32; ++i)
+    {
+      char name[32];
+
+      sprintf (name, "f%d", i);
+      declare_register (name, i);
+      if ((i & 0x01) == 0)
+	{
+	  sprintf (name, "f%df%d", i, i+1);
+	  declare_register (name, i);
+	}
+    }
+}
+#endif
+
 /* Construct a symbol for an address type.  */
 
 static void
@@ -2601,21 +2740,38 @@ declare_addrtype (const char *name, int number)
     as_fatal (_("duplicate %s"), name);
 }
 
+/* Initialize the default cpu.  */
+
+static void
+init_default_arch (void)
+{
+  if (strcmp (default_arch, "arc64") == 0)
+#ifdef TARGET_ARCv3_32
+    arc_select_cpu ("hs5x", MACH_SELECTION_FROM_DEFAULT);
+#else
+    arc_select_cpu ("hs6x", MACH_SELECTION_FROM_DEFAULT);
+#endif
+  else
+    arc_select_cpu (TARGET_WITH_CPU, MACH_SELECTION_FROM_DEFAULT);
+}
+
 /* Port-specific assembler initialization.  This function is called
    once, at assembler startup time.  */
 
 void
 md_begin (void)
 {
-  const struct arc_opcode *opcode = arc_opcodes;
+  const struct arc_opcode *opcode;
+
+  opcode = arc_opcodes;
 
   if (mach_selection_mode == MACH_SELECTION_NONE)
-    arc_select_cpu (TARGET_WITH_CPU, MACH_SELECTION_FROM_DEFAULT);
+    init_default_arch ();
 
   /* The endianness can be chosen "at the factory".  */
   target_big_endian = byte_order == BIG_ENDIAN;
 
-  if (!bfd_set_arch_mach (stdoutput, bfd_arch_arc, selected_cpu.mach))
+  if (!bfd_set_arch_mach (stdoutput, TARGET_ARCH, selected_cpu.mach))
     as_warn (_("could not set architecture and machine"));
 
   /* Set elf header flags.  */
@@ -2642,12 +2798,23 @@ md_begin (void)
   arc_reg_hash = str_htab_create ();
 
   declare_register_set ();
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+  declare_register ("gp", 30);
+  declare_fp_set ();
+#else
   declare_register ("gp", 26);
+#endif
   declare_register ("fp", 27);
   declare_register ("sp", 28);
   declare_register ("ilink", 29);
-  declare_register ("ilink1", 29);
-  declare_register ("ilink2", 30);
+#if !defined (TARGET_ARCv3_64) && !defined (TARGET_ARCv3_32)
+  if (selected_cpu.mach == bfd_mach_arc_arc600
+      || selected_cpu.mach == bfd_mach_arc_arc700)
+    {
+      declare_register ("ilink1", 29);
+      declare_register ("ilink2", 30);
+    }
+#endif
   declare_register ("blink", 31);
 
   /* XY memory registers.  */
@@ -2815,6 +2982,11 @@ md_pcrel_from_section (fixS *fixP,
 	case BFD_RELOC_ARC_S13_PCREL:
 	case BFD_RELOC_ARC_S21W_PCREL:
 	case BFD_RELOC_ARC_S25W_PCREL:
+	case BFD_RELOC_ARC_S10H_PCREL:
+	case BFD_RELOC_ARC_S13H_PCREL:
+	case BFD_RELOC_ARC_S9H_PCREL:
+	case BFD_RELOC_ARC_S8H_PCREL:
+	case BFD_RELOC_ARC_S7H_PCREL:
 	  base &= ~3;
 	  break;
 	default:
@@ -2918,10 +3090,28 @@ insert_operand (unsigned long long insn,
 const char *
 arc_target_format (void)
 {
+  /* We don't get a chance to initialize anything before we're called,
+     so handle that now.  */
+  if (mach_selection_mode == MACH_SELECTION_NONE)
+    init_default_arch ();
+
+  if (selected_cpu.name == NULL)
+    return DEFAULT_TARGET_FORMAT;
+
+#if defined(TARGET_ARCv3_64) || defined(TARGET_ARCv3_32)
+  if (selected_cpu.mach == bfd_mach_arcv3_64)
+    return "elf64-littlearc64";
+
+  if (selected_cpu.mach == bfd_mach_arcv3_32)
+    return "elf32-littlearc64";
+
+  return DEFAULT_TARGET_FORMAT;
+#else
   if (byte_order == LITTLE_ENDIAN)
     return "elf32-littlearc";
 
   return "elf32-bigarc";
+#endif
 }
 
 /* Apply a fixup to the object code.  At this point all symbol values
@@ -2941,7 +3131,6 @@ md_apply_fix (fixS *fixP,
   symbolS *fx_addsy, *fx_subsy;
   offsetT fx_offset;
   segT add_symbol_segment = absolute_section;
-  segT sub_symbol_segment = absolute_section;
   const struct arc_operand *operand = NULL;
   extended_bfd_reloc_code_real_type reloc;
 
@@ -2960,29 +3149,9 @@ md_apply_fix (fixS *fixP,
       add_symbol_segment = S_GET_SEGMENT (fx_addsy);
     }
 
-  if (fx_subsy
-      && fixP->fx_r_type != BFD_RELOC_ARC_TLS_DTPOFF
-      && fixP->fx_r_type != BFD_RELOC_ARC_TLS_DTPOFF_S9
-      && fixP->fx_r_type != BFD_RELOC_ARC_TLS_GD_LD)
-    {
-      resolve_symbol_value (fx_subsy);
-      sub_symbol_segment = S_GET_SEGMENT (fx_subsy);
-
-      if (sub_symbol_segment == absolute_section)
-	{
-	  /* The symbol is really a constant.  */
-	  fx_offset -= S_GET_VALUE (fx_subsy);
-	  fx_subsy = NULL;
-	}
-      else
-	{
-	  as_bad_subtract (fixP);
-	  return;
-	}
-    }
-
   if (fx_addsy
-      && !S_IS_WEAK (fx_addsy))
+      && !S_IS_WEAK (fx_addsy)
+      && !fx_subsy)
     {
       if (add_symbol_segment == seg
 	  && fixP->fx_pcrel)
@@ -3152,6 +3321,11 @@ md_apply_fix (fixS *fixP,
     case BFD_RELOC_ARC_S21H_PCREL:
     case BFD_RELOC_ARC_S25H_PCREL:
     case BFD_RELOC_ARC_S13_PCREL:
+    case BFD_RELOC_ARC_S10H_PCREL:
+    case BFD_RELOC_ARC_S13H_PCREL:
+    case BFD_RELOC_ARC_S9H_PCREL:
+    case BFD_RELOC_ARC_S8H_PCREL:
+    case BFD_RELOC_ARC_S7H_PCREL:
     solve_plt:
       operand = find_operand_for_reloc (reloc);
       gas_assert (operand);
@@ -3462,6 +3636,25 @@ md_parse_option (int c, const char *arg ATTRIBUTE_UNUSED)
 {
   switch (c)
     {
+    case OPTION_MCPU:
+      arc_select_cpu (arg, MACH_SELECTION_FROM_COMMAND_LINE);
+      break;
+
+    case OPTION_CD:
+      selected_cpu.features |= CD;
+      cl_features |= CD;
+      arc_check_feature ();
+      break;
+
+    case OPTION_RELAX:
+      relaxation_state = true;
+      break;
+
+    case OPTION_LINKER_RELAX:
+      relaxation_state = false;
+      break;
+
+#if !defined (TARGET_ARCv3_64) && !defined (TARGET_ARCv3_32)
     case OPTION_ARC600:
     case OPTION_ARC601:
       return md_parse_option (OPTION_MCPU, "arc600");
@@ -3475,28 +3668,12 @@ md_parse_option (int c, const char *arg ATTRIBUTE_UNUSED)
     case OPTION_ARCHS:
       return md_parse_option (OPTION_MCPU, "archs");
 
-    case OPTION_MCPU:
-      {
-        arc_select_cpu (arg, MACH_SELECTION_FROM_COMMAND_LINE);
-	break;
-      }
-
     case OPTION_EB:
       byte_order = BIG_ENDIAN;
       break;
 
     case OPTION_EL:
       byte_order = LITTLE_ENDIAN;
-      break;
-
-    case OPTION_CD:
-      selected_cpu.features |= CD;
-      cl_features |= CD;
-      arc_check_feature ();
-      break;
-
-    case OPTION_RELAX:
-      relaxation_state = 1;
       break;
 
     case OPTION_NPS400:
@@ -3545,6 +3722,7 @@ md_parse_option (int c, const char *arg ATTRIBUTE_UNUSED)
     case OPTION_SWAPE:
     case OPTION_RTSC:
       break;
+#endif
 
     default:
       return 0;
@@ -3587,6 +3765,7 @@ arc_show_cpu_list (FILE *stream)
 void
 md_show_usage (FILE *stream)
 {
+#if !defined(TARGET_ARCv3_64) && !defined(TARGET_ARCv3_32)
   fprintf (stream, _("ARC-specific assembler options:\n"));
 
   fprintf (stream, "  -mcpu=<cpu name>\t  (default: %s), assemble for"
@@ -3644,6 +3823,14 @@ md_show_usage (FILE *stream)
                      "  -mtelephony\n"
 		     "  -muser-mode-only\n"
                      "  -mxy\n"));
+#else
+  fprintf (stream, _("ARC64-specific assembler options:\n"));
+
+  fprintf (stream, "  -mcpu=<cpu name>\t  assemble for CPU <cpu name>,"
+	   "one of:\n");
+  arc_show_cpu_list (stream);
+  fprintf (stream, "\n");
+#endif
 }
 
 /* Find the proper relocation for the given opcode.  */
@@ -3726,6 +3913,9 @@ may_relax_expr (expressionS tok)
     default:
       break;
     case O_plt:
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+    case O_plt34:
+#endif
       return false;
     }
 
@@ -4012,6 +4202,17 @@ assemble_insn (const struct arc_opcode *opcode,
 				  operand->default_reloc);
 	      break;
 
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+	    case O_s32:
+	      if ((operand->flags & ARC_OPERAND_SIGNED) == 0)
+		as_bad (_("Unable to use @s32 relocation for insn %s"),
+			opcode->name);
+	      /* Fall-through.  */
+	    case O_u32:
+	      reloc = operand->default_reloc;
+	      break;
+	    case O_plt34:
+#endif
 	    case O_gotoff:
 	    case O_gotpc:
 	      needGOTSymbol = true;
@@ -4211,26 +4412,64 @@ assemble_insn (const struct arc_opcode *opcode,
 	    arc_last_insns[0].opcode->name);
 }
 
+static void
+arc_make_nops (char *buf, bfd_vma bytes)
+{
+  bfd_vma i = 0;
+
+  /* ARC instructions cannot begin or end on odd addresses, so this case
+     means we are not within a valid instruction sequence.  It is thus safe
+     to use a zero byte, even though that is not a valid instruction.  */
+  if (bytes % 2 == 1)
+    buf[i++] = 0;
+
+  /* Use 2-byte NOP.  */
+  for ( ; i < bytes; i += 2)
+    md_number_to_chars_midend (buf + i, NOP_OPCODE_S, 2);
+}
+
+/* Implement HANDLE_ALIGN.  */
+
 void
 arc_handle_align (fragS* fragP)
 {
-  if ((fragP)->fr_type == rs_align_code)
+  char *dest = (fragP)->fr_literal + (fragP)->fr_fix;
+  valueT count = ((fragP)->fr_next->fr_address
+		  - (fragP)->fr_address - (fragP)->fr_fix);
+  bfd_signed_vma size = count & ~0x01;
+  bfd_signed_vma excess = count & 0x01;
+  expressionS ex;
+
+  if (fragP->fr_type != rs_align_code)
+    return;
+
+  if (count <= 0)
+    return;
+
+  /* Insert zeros to get 2 byte alignment.  */
+  if (excess && fragP->fr_type == rs_align_code)
     {
-      char *dest = (fragP)->fr_literal + (fragP)->fr_fix;
-      valueT count = ((fragP)->fr_next->fr_address
-		      - (fragP)->fr_address - (fragP)->fr_fix);
-
-      (fragP)->fr_var = 2;
-
-      if (count & 1)/* Padding in the gap till the next 2-byte
-		       boundary with 0s.  */
-	{
-	  (fragP)->fr_fix++;
-	  *dest++ = 0;
-	}
-      /* Writing nop_s.  */
-      md_number_to_chars (dest, NOP_OPCODE_S, 2);
+      arc_make_nops (dest, excess);
+      fragP->fr_fix += excess;
+      dest += excess;
     }
+
+  /* Only emit this reloc when linker relaxation is required.  */
+  if (linkrelax && size)
+    {
+      ex.X_op = O_constant;
+      ex.X_add_number = size;
+      fix_new_exp (fragP, fragP->fr_fix, 0, &ex, false, BFD_RELOC_ARC_ALIGN);
+    }
+  else
+    {
+      if (size > MAX_MEM_FOR_RS_SPACE_NOP)
+	size &= MAX_MEM_FOR_RS_SPACE_NOP;
+
+      /* Insert variable number of 2 bytes NOPs.  */
+      arc_make_nops (dest, size);
+    }
+  fragP->fr_fix += size;
 }
 
 /* Here we decide which fixups can be adjusted to make them relative
@@ -4254,6 +4493,9 @@ tc_arc_fix_adjustable (fixS *fixP)
     {
     case BFD_RELOC_32_GOT_PCREL:
     case BFD_RELOC_32_PLT_PCREL:
+#if defined (TARGET_ARCv3_64) || defined (TARGET_ARCv3_32)
+    case BFD_RELOC_ARC_PLT34:
+#endif
     case BFD_RELOC_ARC_S25H_PCREL_PLT:
     case BFD_RELOC_ARC_S21H_PCREL_PLT:
     case BFD_RELOC_ARC_S25W_PCREL_PLT:
@@ -5114,9 +5356,6 @@ void
 arc_md_finish (void)
 {
   arc_set_public_attributes ();
-
-  if (!bfd_set_arch_mach (stdoutput, bfd_arch_arc, selected_cpu.mach))
-    as_fatal (_("could not set architecture and machine"));
 
   bfd_set_private_flags (stdoutput, selected_cpu.eflags);
 }
