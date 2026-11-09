@@ -70,7 +70,8 @@ const bfd_arch_info_type bfd_arc_arch =
    warning.  */
 
 static const bfd_arch_info_type *
-arc_compatible (const bfd_arch_info_type *a, const bfd_arch_info_type *b)
+arc_compatible (const bfd_arch_info_type *a ATTRIBUTE_UNUSED,
+		const bfd_arch_info_type *b ATTRIBUTE_UNUSED)
 {
   const bfd_arch_info_type * const em = &arch_info_struct[5];
   const bfd_arch_info_type * const hs = &arch_info_struct[6];
