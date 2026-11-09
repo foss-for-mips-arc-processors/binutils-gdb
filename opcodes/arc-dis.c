@@ -295,7 +295,7 @@ find_format_from_table (struct disassemble_info *info,
       if (arc_opcode_len (opcode) != (int) insn_len)
 	continue;
 
-      if ((insn & opcode->mask) != opcode->opcode)
+      if ((insn & opcode->mask) != (opcode->mask & opcode->opcode))
 	continue;
 
       *has_limm = false;
