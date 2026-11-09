@@ -54,6 +54,18 @@ FLAG(NO_T, "nt", 24, 5, 0, 1)
   /* FLAG.  */
 FLAG(FLAG, "f", 1, 1, 15, 1)
 FLAG(FFAKE, "f", 0, 0, 0, 1)
+FLAG(AQ, "aq", 1, 1, 15, 1)
+FLAG(RL, "rl", 1, 1, 15, 1)
+
+  /* Atomic operations.  */
+FLAG(ATO_ADD, "add", 0, 3, 0, 1)
+FLAG(ATO_OR, "or", 1, 3, 0, 1)
+FLAG(ATO_AND, "and", 2, 3, 0, 1)
+FLAG(ATO_XOR, "xor", 3, 3, 0, 1)
+FLAG(ATO_MINU, "minu", 4, 3, 0, 1)
+FLAG(ATO_MAXU, "maxu", 5, 3, 0, 1)
+FLAG(ATO_MIN, "min", 6, 3, 0, 1)
+FLAG(ATO_MAX, "max", 7, 3, 0, 1)
 
   /* Delay slot.  */
 FLAG(ND, "nd", 0, 1, 5, 0)
@@ -90,6 +102,20 @@ FLAG(AS9, "as", 3, 2, 9, 1)
 FLAG(AS22, "as", 3, 2, 22, 1)
 FLAG(ASFAKE, "as", 0, 0, 0, 1)
 
+/* address writebacks for 128-bit loads.
+   ,---.---.----------.
+   | X | D | mnemonic |
+   |---+---+----------|
+   | 0 | 0 | none     |
+   | 0 | 1 | as       |
+   | 1 | 0 | a/aw     |
+   | 1 | 1 | ab       |
+   `---^---^----------'  */
+FLAG(AA128, "a", 2, 2, 15, 0)
+FLAG(AA128W, "aw", 2, 2, 15, 1)
+FLAG(AA128B, "ab", 3, 2, 15, 1)
+FLAG(AA128S, "as", 1, 2, 15, 1)
+
   /* Cache bypass.  */
 FLAG(DI5, "di", 1, 1, 5, 1)
 FLAG(DI11, "di", 1, 1, 11, 1)
@@ -104,6 +130,10 @@ FLAG(H7, "h", 2, 2, 7, 1)
 FLAG(H17, "h", 2, 2, 17, 1)
 /* Fake */
 FLAG(SIZED, "dd", 8, 0, 0, 0)
+/* Fake */
+FLAG(SIZEL, "dl", 8, 0, 0, 0)
+/* Fake */
+FLAG(SIZEW, "xx", 4, 0, 0, 0)
 
   /* Fake Flags.  */
 FLAG(NE, "ne", 0, 0, 0, 1)
