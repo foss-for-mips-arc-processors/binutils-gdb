@@ -3231,8 +3231,6 @@ ENUMDOC
   Renesas / SuperH SH relocs.  Not all of these appear in object files.
 
 ENUM
-  BFD_RELOC_ARC_64
-ENUMX
   BFD_RELOC_ARC_N8
 ENUMX
   BFD_RELOC_ARC_N16

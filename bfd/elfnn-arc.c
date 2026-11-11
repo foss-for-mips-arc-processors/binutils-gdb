@@ -408,6 +408,7 @@ arc_elf_link_hash_table_create (bfd *abfd)
 #define BFD_RELOC_ARC_16	BFD_RELOC_16
 #define BFD_RELOC_ARC_24	BFD_RELOC_24
 #define BFD_RELOC_ARC_32	BFD_RELOC_32
+#define BFD_RELOC_ARC_64	BFD_RELOC_64
 #define BFD_RELOC_ARC_PC32	BFD_RELOC_32_PCREL
 #define BFD_RELOC_ARC_PLT32	BFD_RELOC_32_PLT_PCREL
 #define BFD_RELOC_ARC_GOTOFF	BFD_RELOC_32_GOTOFF
@@ -420,8 +421,6 @@ arc_elf_link_hash_table_create (bfd *abfd)
 static const struct arc_reloc_map arc_reloc_map[] =
 {
 #include "elf/arc-reloc.def"
-
-  {BFD_RELOC_64, R_ARC_64},
 };
 
 #undef ARC_RELOC_HOWTO

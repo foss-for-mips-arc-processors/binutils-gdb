@@ -4388,7 +4388,6 @@ enum bfd_reloc_code_real
   BFD_RELOC_SH_FUNCDESC,
 
   /* ARC relocs.  */
-  BFD_RELOC_ARC_64,
   BFD_RELOC_ARC_N8,
   BFD_RELOC_ARC_N16,
   BFD_RELOC_ARC_N24,
