@@ -62,7 +62,7 @@
 # define DEFAULT_TARGET_FORMAT  "elf64-littlearc64"
 # define DEFAULT_BYTE_ORDER     LITTLE_ENDIAN
 #elif defined (TARGET_ARCv3_32)
-# define DEFAULT_TARGET_FORMAT  "elf64-littlearc32"
+# define DEFAULT_TARGET_FORMAT  "elf32-littlearc64"
 # define DEFAULT_BYTE_ORDER     LITTLE_ENDIAN
 #else
 #if TARGET_BYTES_BIG_ENDIAN == 1
