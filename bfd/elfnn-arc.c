@@ -32,8 +32,8 @@
 
 #include "arc-plt.h"
 
-#define FEATURE_LIST_NAME bfdNN_feature_list
-#define CONFLICT_LIST bfdNN_conflict_list
+#define FEATURE_LIST_NAME bfdNN_arcAA_feature_list
+#define CONFLICT_LIST bfdNN_arcAA_conflict_list
 #include "opcode/arc-attrs.h"
 
 /* Possible ARC architectures.  */
@@ -3541,8 +3541,10 @@ arc_elf_relax_section (bfd *abfd, asection *sec,
 
 #define TARGET_LITTLE_SYM   arcAA_elfNN_le_vec
 #define TARGET_LITTLE_NAME  "elfNN-littlearcAA"
+#if ARCH_TYPE == ARC
 #define TARGET_BIG_SYM	    arc_elfNN_be_vec
 #define TARGET_BIG_NAME     "elfNN-bigarc"
+#endif
 #define ELF_ARCH	    ARC_BFD_ARCH
 #define ELF_TARGET_ID	    ARC_ELF_DATA
 
