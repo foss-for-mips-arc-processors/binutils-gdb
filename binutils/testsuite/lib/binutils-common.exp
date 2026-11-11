@@ -545,7 +545,7 @@ proc supports_oa_v1 {} {
 	 && ![istarget *-*-vxworks*] && ![istarget *-*-windiss*] } {
 	return 0
     }
-    if { [istarget arc-*-*]
+    if { [istarget arc*-*-*]
 	 || [istarget arm*-*-*]
 	 || [istarget csky*-*-*]
 	 || [istarget loongarch*-*-*]
