@@ -3052,6 +3052,19 @@ arcv_apex_xs_xc_pair_p (const struct riscv_opcode *insn)
 	  && insn[1].mask == ARCV_APEX_MASK_XC);
 }
 
+/* Return true if INSN was registered by an .extInstruction directive.
+   APEX masks are not unique in the opcode table, so check the table of
+   registered APEX instructions instead.  */
+
+static bool
+arcv_apex_insn_p (const struct riscv_opcode *insn)
+{
+  for (unsigned int i = 0; i < ARCV_APEX_INSN_LIMIT; i++)
+    if (insn != NULL && arcv_apex_insns[i] == insn)
+      return true;
+  return false;
+}
+
 /* Validate operands of an APEX instruction.
 
    Verifies that operands match expected argument types for XD, XS, XI,
@@ -3064,11 +3077,7 @@ static bool
 arcv_apex_validate_insn (const char *operands, const struct riscv_opcode *insn)
 {
   /* Skip non-APEX instructions.  */
-  if (insn == NULL
-      || (insn->mask != ARCV_APEX_MASK_XD
-	  && insn->mask != ARCV_APEX_MASK_XS
-	  && insn->mask != ARCV_APEX_MASK_XI
-	  && insn->mask != ARCV_APEX_MASK_XC))
+  if (!arcv_apex_insn_p (insn))
     return true;
 
   /* Make local copies for tokenization.  */
