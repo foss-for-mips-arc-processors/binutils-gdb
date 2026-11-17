@@ -601,7 +601,7 @@ ARC_RELOC_HOWTO(ARC_HI32, 91, \
                 32, \
                 replace_word32, \
                 dont, \
-                ( ( S + A ) >> 32 ))
+                ( ( (uint64_t) ( S + A ) ) >> 32 ))
 
 ARC_RELOC_HOWTO(ARC_LO32_ME, 92, \
                 4, \
@@ -615,7 +615,7 @@ ARC_RELOC_HOWTO(ARC_HI32_ME, 93, \
                 32, \
                 replace_word32, \
                 dont, \
-                ( ME ( ( ( S + A ) >> 32 ) ) ))
+                ( ME ( ( ( (uint64_t) ( S + A ) ) >> 32 ) ) ))
 
 ARC_RELOC_HOWTO(ARC_N64, 94, \
                 4, \
