@@ -23,14 +23,17 @@
 #define TEST_JL
 #define TEST_JLCC
 #define TEST_B
-#define TEST_BBIT
 #define TEST_BCC
 #define TEST_BI
 #define TEST_BL
-#define TEST_BRCC
 #define TEST_JLI
 #define TEST_LEAVE_S
+
+#ifndef __ARCV3__
+#define TEST_BBIT
+#define TEST_BRCC
 #define TEST_LPCC
+#endif
 
 ; JLI-specific stuff
 #ifdef TEST_JLI
@@ -785,6 +788,7 @@ start_branch_tests:
 #endif /* TEST_BI */
 
 #ifdef TEST_BL
+    .balign 8
 .Lbl_target:
     ; bl s25
     .set bl_s25_target, @.Lbl_target

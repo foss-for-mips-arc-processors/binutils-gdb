@@ -43,6 +43,26 @@ if {![runto_main]} {
     return
 }
 
+proc get_arc_defines { } {
+    global target_info board_info decimal
+
+    set target_board [target_info name]
+    set compiler [board_info $target_board compiler]
+    set multilib ""
+
+    if { [board_info $target_board exists multilib_flags] } {
+	set multilib "[board_info $target_board multilib_flags]"
+    }
+
+    set options "$multilib -dM -E -"
+    return [eval exec "$compiler $options < /dev/null"]
+}
+
+set arc_defines [get_arc_defines]
+set is_arcv3 [regexp "__ARCV3__" $arc_defines]
+set is_arcv3_arc32 [regexp "__ARC64_ARCH32__" $arc_defines]
+set is_arcv3_arc64 [regexp "__ARC64_ARCH64__" $arc_defines]
+
 # Helper function that reads properties of instruction from the ELF file via
 # its symbols and then confirms that decoder output aligns to the expected
 # values.
@@ -94,15 +114,19 @@ lappend branch_test_list \
     jlcc_c jlcc_limm jlcc_u6 jlcc_d_c jlcc_d_u6
 lappend branch_test_list \
     b_s25 b_d_s25 b_s_s10
-lappend branch_test_list \
-    bbit0_nt_b_c_s9 bbit0_d_nt_b_c_s9 bbit0_t_b_c_s9 bbit0_d_t_b_c_s9 \
-    bbit0_nt_b_u6_s9 bbit0_d_nt_b_u6_s9 bbit0_t_b_u6_s9 bbit0_d_t_b_u6_s9 \
-    bbit0_nt_b_limm_s9 bbit0_t_b_limm_s9 bbit0_nt_limm_c_s9 bbit0_t_limm_c_s9 \
-    bbit0_nt_limm_u6_s9 bbit0_t_limm_u6_s9 \
-    bbit1_nt_b_c_s9 bbit1_d_nt_b_c_s9 bbit1_t_b_c_s9 bbit1_d_t_b_c_s9 \
-    bbit1_nt_b_u6_s9 bbit1_d_nt_b_u6_s9 bbit1_t_b_u6_s9 bbit1_d_t_b_u6_s9 \
-    bbit1_nt_b_limm_s9 bbit1_t_b_limm_s9 bbit1_nt_limm_c_s9 bbit1_t_limm_c_s9 \
-    bbit1_nt_limm_u6_s9 bbit1_t_limm_u6_s9
+
+if { !$is_arcv3 } {
+    lappend branch_test_list \
+	bbit0_nt_b_c_s9 bbit0_d_nt_b_c_s9 bbit0_t_b_c_s9 bbit0_d_t_b_c_s9 \
+	bbit0_nt_b_u6_s9 bbit0_d_nt_b_u6_s9 bbit0_t_b_u6_s9 bbit0_d_t_b_u6_s9 \
+	bbit0_nt_b_limm_s9 bbit0_t_b_limm_s9 bbit0_nt_limm_c_s9 bbit0_t_limm_c_s9 \
+	bbit0_nt_limm_u6_s9 bbit0_t_limm_u6_s9 \
+	bbit1_nt_b_c_s9 bbit1_d_nt_b_c_s9 bbit1_t_b_c_s9 bbit1_d_t_b_c_s9 \
+	bbit1_nt_b_u6_s9 bbit1_d_nt_b_u6_s9 bbit1_t_b_u6_s9 bbit1_d_t_b_u6_s9 \
+	bbit1_nt_b_limm_s9 bbit1_t_b_limm_s9 bbit1_nt_limm_c_s9 bbit1_t_limm_c_s9 \
+	bbit1_nt_limm_u6_s9 bbit1_t_limm_u6_s9
+}
+
 lappend branch_test_list \
     bcc_s21 bcc_d_s21 \
     beq_s_s10 bne_s_s10 bgt_s_s7 bge_s_s7 blt_s_s7 ble_s_s7 bhi_s_s7 bhs_s_s7 \
@@ -112,14 +136,21 @@ lappend branch_test_list \
 lappend branch_test_list \
     bl_s25 bl_d_s25 bl_s_s13 \
     blcc_s21 blcc_d_s21
-lappend branch_test_list \
-     breq_nt_b_c_s9 breq_d_nt_b_c_s9 breq_t_b_c_s9 breq_d_t_b_c_s9 \
-     breq_nt_b_u6_s9 breq_d_nt_b_u6_s9 breq_t_b_u6_s9 breq_d_t_b_u6_s9 \
-     breq_nt_b_limm_s9 breq_t_b_limm_s9 breq_nt_limm_c_s9 breq_t_limm_c_s9 \
-     breq_nt_limm_u6_s9 breq_t_limm_u6_s9
+
+if { !$is_arcv3 } {
+    lappend branch_test_list \
+	breq_nt_b_c_s9 breq_d_nt_b_c_s9 breq_t_b_c_s9 breq_d_t_b_c_s9 \
+	breq_nt_b_u6_s9 breq_d_nt_b_u6_s9 breq_t_b_u6_s9 breq_d_t_b_u6_s9 \
+	breq_nt_b_limm_s9 breq_t_b_limm_s9 breq_nt_limm_c_s9 breq_t_limm_c_s9 \
+	breq_nt_limm_u6_s9 breq_t_limm_u6_s9
+}
+
 # lappend branch_test_list jli_s_u10
 lappend branch_test_list leave_s
-lappend branch_test_list lpcc_u7
+
+if { !$is_arcv3 } {
+    lappend branch_test_list lpcc_u7
+}
 
 runto start_branch_tests
 foreach test $branch_test_list {
