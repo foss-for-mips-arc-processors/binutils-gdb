@@ -95,6 +95,13 @@ Disassembly of section .text:
 [	 ]+[0-9a-f]+:[	 ]+8252707b[	 ]+mips.msetmtype[	 ]+tp,t0
 [	 ]+[0-9a-f]+:[	 ]+8253707b[	 ]+mips.msetmtype[	 ]+t1,t0
 [	 ]+[0-9a-f]+:[	 ]+8262f07b[	 ]+mips.msetmtype[	 ]+t0,t1
+[	 ]+[0-9a-f]+:[	 ]+8440707b[	 ]+mips.msetmtypei[	 ]+e8,w0
+[	 ]+[0-9a-f]+:[	 ]+84c0707b[	 ]+mips.msetmtypei[	 ]+e16,w0
+[	 ]+[0-9a-f]+:[	 ]+8540707b[	 ]+mips.msetmtypei[	 ]+e32,w0
+[	 ]+[0-9a-f]+:[	 ]+85c0707b[	 ]+mips.msetmtypei[	 ]+e64,w0
+[	 ]+[0-9a-f]+:[	 ]+85c0f07b[	 ]+mips.msetmtypei[	 ]+e64,w1
+[	 ]+[0-9a-f]+:[	 ]+85c1707b[	 ]+mips.msetmtypei[	 ]+e64,w2
+[	 ]+[0-9a-f]+:[	 ]+85c1f07b[	 ]+mips.msetmtypei[	 ]+e64,w4
 [	 ]+[0-9a-f]+:[	 ]+840372fb[	 ]+mips.msetnl[	 ]+t0,t1,0
 [	 ]+[0-9a-f]+:[	 ]+848372fb[	 ]+mips.msetnl[	 ]+t0,t1,1
 [	 ]+[0-9a-f]+:[	 ]+850372fb[	 ]+mips.msetnl[	 ]+t0,t1,2
