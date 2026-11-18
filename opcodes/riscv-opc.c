@@ -108,6 +108,12 @@ const char * const riscv_vsew_altfmt[2] =
   "e8alt", "e16alt"
 };
 
+/* The mips.msetmtypei awiden constants.  */
+const char * const riscv_awiden[8] =
+{
+  "w0", "w1", "w2", "w4", NULL, NULL, NULL, NULL
+};
+
 /* The vsetvli vlmul constants.  */
 const char * const riscv_vlmul[8] =
 {
@@ -3744,6 +3750,7 @@ const struct riscv_opcode riscv_opcodes[] =
 {"mips.azero.a",   0, INSN_CLASS_XMIPSVME, "Xmm",    MATCH_MIPS_AZERO_A, MASK_MIPS_AZERO_A, match_opcode, 0 },
 {"mips.adiscard",   0, INSN_CLASS_XMIPSVME, "",    MATCH_MIPS_ADISCARD, MASK_MIPS_ADISCARD, match_opcode, 0 },
 {"mips.msetmtype",   0, INSN_CLASS_XMIPSVME, "s,t",    MATCH_MIPS_MSETMTYPE, MASK_MIPS_MSETMTYPE, match_opcode, 0 },
+{"mips.msetmtypei",   0, INSN_CLASS_XMIPSVME, "Xme,Xmw",    MATCH_MIPS_MSETMTYPEI, MASK_MIPS_MSETMTYPEI, match_opcode, 0 },
 {"mips.msetml",   0, INSN_CLASS_XMIPSVME, "d,s,Xm2",    MATCH_MIPS_MSETML, MASK_MIPS_MSETML, match_opcode, 0 },
 {"mips.msetnl",   0, INSN_CLASS_XMIPSVME, "d,s,Xm2",    MATCH_MIPS_MSETNL, MASK_MIPS_MSETNL, match_opcode, 0 },
 {"mips.msetkl",   0, INSN_CLASS_XMIPSVME, "d,s",    MATCH_MIPS_MSETKL, MASK_MIPS_MSETKL, match_opcode, 0 },

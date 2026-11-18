@@ -1796,7 +1796,9 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)
 		  case '^': used_bits |= ENCODE_MIPS_SDP_IMM (-1U); break;
 		  case '&': used_bits |= ENCODE_MIPS_SWP_IMM (-1U); break;
       case '4': used_bits |= ENCODE_MIPS_COREXTEND_IMM (-1U); break;
+      case 'e': USE_BITS (OP_MASK_MIPS_IMMe, OP_SH_MIPS_IMMe); break;
       case 'm': USE_BITS (OP_MASK_RD, OP_SH_RD); break;
+      case 'w': USE_BITS (OP_MASK_MIPS_IMMw, OP_SH_MIPS_IMMw); break;
       case '2': USE_BITS (OP_MASK_MIPS_IMM2, OP_SH_MIPS_IMM2); break;
 		  default:
 		    goto unknown_validate_operand;
@@ -2712,6 +2714,48 @@ my_getOpcodeExpression (expressionS *ep, bfd_reloc_code_real_type *reloc,
     }
 
   return my_getSmallExpression (ep, reloc, str, percent_op_null);
+}
+
+/* Parse string STR as a vsew operand.  Store the expression in *EP.
+   On exit, EXPR_PARSE_END points to the first character after the
+   expression.  */
+
+static void
+my_getVsewExpression (expressionS *ep, char *str, bool force_reloc)
+{
+  unsigned int vsew_value = 0;
+  if (arg_lookup (&str, riscv_vsew, ARRAY_SIZE (riscv_vsew), &vsew_value))
+    {
+      ep->X_op = O_constant;
+      ep->X_add_number = vsew_value;
+      expr_parse_end = str;
+    }
+  else
+    {
+      my_getExpression (ep, str, force_reloc);
+      str = expr_parse_end;
+    }
+}
+
+/* Parse string STR as an awiden operand.  Store the expression in *EP.
+   On exit, EXPR_PARSE_END points to the first character after the
+   expression.  */
+
+static void
+my_getAwidenExpression (expressionS *ep, char *str, bool force_reloc)
+{
+  unsigned int awiden_value = 0;
+  if (arg_lookup (&str, riscv_awiden, ARRAY_SIZE (riscv_awiden), &awiden_value))
+    {
+      ep->X_op = O_constant;
+      ep->X_add_number = awiden_value;
+      expr_parse_end = str;
+    }
+  else
+    {
+      my_getExpression (ep, str, force_reloc);
+      str = expr_parse_end;
+    }
 }
 
 /* Parse string STR as a vsetvli operand.  Store the expression in *EP.
@@ -4708,6 +4752,22 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 				as_bad (_("Improper immediate (%lu)"),
 				(unsigned long)imm_expr->X_add_number);
 				INSERT_OPERAND (MIPS_IMM2, *ip, imm_expr->X_add_number);
+				imm_expr->X_op = O_absent;
+				asarg = expr_parse_end;
+				continue;
+
+			case 'e': /* e8/e16/e32/e64.  */
+				my_getVsewExpression (imm_expr, asarg, force_reloc);
+				check_absolute_expr (ip, imm_expr, false);
+				INSERT_OPERAND (MIPS_IMMe, *ip, imm_expr->X_add_number);
+				imm_expr->X_op = O_absent;
+				asarg = expr_parse_end;
+				continue;
+
+			case 'w': /* w0/w1/w2/w.  */
+				my_getAwidenExpression (imm_expr, asarg, force_reloc);
+				check_absolute_expr (ip, imm_expr, false);
+				INSERT_OPERAND (MIPS_IMMw, *ip, imm_expr->X_add_number);
 				imm_expr->X_op = O_absent;
 				asarg = expr_parse_end;
 				continue;
