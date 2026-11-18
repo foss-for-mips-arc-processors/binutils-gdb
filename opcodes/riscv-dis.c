@@ -980,9 +980,17 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 		  print (info->stream, dis_style_immediate, "%d",
 			 (unsigned)EXTRACT_MIPS_COREXTEND_IMM (l));
 		  break;
+		case 'e':
+			print (info->stream, dis_style_immediate, "%s",
+			riscv_vsew[(unsigned) EXTRACT_OPERAND (MIPS_IMMe, l)]);
+			break;
 		case 'm':
 			print (info->stream, dis_style_immediate, "m%d",
 			 (unsigned)EXTRACT_OPERAND (RD, l));
+			break;
+		case 'w':
+			print (info->stream, dis_style_immediate, "%s",
+			riscv_awiden[(unsigned) EXTRACT_OPERAND (MIPS_IMMw, l)]);
 			break;
 		default:
 		  goto undefined_modifier;
