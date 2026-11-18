@@ -415,6 +415,10 @@ static inline unsigned int riscv_insn_length (insn_t insn)
 #define OP_SH_MIPS_IMM2    23
 #define OP_MASK_MIPS_IMM9		0x1ff
 #define OP_SH_MIPS_IMM9		20
+#define OP_MASK_MIPS_IMMe    0x3
+#define OP_SH_MIPS_IMMe    23
+#define OP_MASK_MIPS_IMMw    0x3
+#define OP_SH_MIPS_IMMw    15
 #define OP_MASK_MIPS_HINT		0x1f
 #define OP_SH_MIPS_HINT		7
 #define OP_MASK_MIPS_LWP_OFFSET     0x1f
@@ -775,6 +779,7 @@ extern const char * const riscv_rm[8];
 extern const char * const riscv_pred_succ[16];
 extern const char riscv_vecr_names_numeric[NVECR][NRC];
 extern const char riscv_vecm_names_numeric[NVECM][NRC];
+extern const char * const riscv_awiden[8];
 extern const char * const riscv_vsew[8];
 extern const char * const riscv_vsew_altfmt[2];
 extern const char * const riscv_vlmul[8];
