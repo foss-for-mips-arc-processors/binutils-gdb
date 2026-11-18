@@ -953,6 +953,10 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 	    case 'm': /* Vendor-specific (MIPS) operands.  */
 	      switch (*++oparg)
 		{
+		case '2':
+			print (info->stream, dis_style_immediate, "%d",
+			 (unsigned) EXTRACT_OPERAND (MIPS_IMM2, l));
+			break;
 		case '@':
 		  print (info->stream, dis_style_register, "0x%x",
 			 (unsigned) EXTRACT_OPERAND (MIPS_HINT, l));
@@ -981,6 +985,10 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 		  print (info->stream, dis_style_immediate, "%d",
 			 (unsigned)EXTRACT_MIPS_COREXTEND_IMM (l));
 		  break;
+		case 'm':
+			print (info->stream, dis_style_immediate, "m%d",
+			 (unsigned)EXTRACT_OPERAND (RD, l));
+			break;
 		default:
 		  goto undefined_modifier;
 		}
