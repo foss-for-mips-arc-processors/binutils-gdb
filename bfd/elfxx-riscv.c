@@ -1669,6 +1669,7 @@ static const struct riscv_supported_ext riscv_supported_vendor_x_ext[] =
   {"xsfvqmaccqoq",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xsfvqmaccdod",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xsfvfnrclipxfqf",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
+  {"xmipscache",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xmipscbop",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xmipscmov",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xmipsexectl",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
@@ -3151,6 +3152,8 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
       return riscv_subset_supports (rps, "xsfvqmaccdod");
     case INSN_CLASS_XSFVFNRCLIPXFQF:
       return riscv_subset_supports (rps, "xsfvfnrclipxfqf");
+    case INSN_CLASS_XMIPSCACHE:
+      return riscv_subset_supports (rps, "xmipscache");
     case INSN_CLASS_XMIPSCBOP:
       return riscv_subset_supports (rps, "xmipscbop");
     case INSN_CLASS_XMIPSCMOV:
@@ -3531,6 +3534,8 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "xsmtvdotii";
     case INSN_CLASS_XSMTVDOT_OR_XSMTVDOTII:
       return _("xsmtvdot' or `xsmtvdotii");
+    case INSN_CLASS_XMIPSCACHE:
+      return "xmipscache";
     case INSN_CLASS_XMIPSCBOP:
       return "xmipscbop";
     case INSN_CLASS_XMIPSCMOV:
