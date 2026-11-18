@@ -115,6 +115,14 @@
 	mips.msetmtype x6,x5
 	mips.msetmtype x5,x6
 
+	mips.msetmtypei e8,w0
+	mips.msetmtypei e16,w0
+	mips.msetmtypei e32,w0
+	mips.msetmtypei e64,w0
+	mips.msetmtypei e64,w1
+	mips.msetmtypei e64,w2
+	mips.msetmtypei e64,w4
+
 	mips.msetnl x5,x6,0
 	mips.msetnl x5,x6,1
 	mips.msetnl x5,x6,2
