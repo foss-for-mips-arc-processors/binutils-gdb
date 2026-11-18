@@ -18,7 +18,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* GDB header files.  */
-#include "defs.h"
 #include "linux-tdep.h"
 #include "solib-svr4-linux.h"
 #include "objfiles.h"
@@ -40,7 +39,7 @@
 
 /* Implement the "cannot_fetch_register" gdbarch method.  */
 
-static int
+static bool
 arc_linux_cannot_fetch_register (struct gdbarch *gdbarch, int regnum)
 {
   /* Assume that register is readable if it is unknown.  */
@@ -57,7 +56,7 @@ arc_linux_cannot_fetch_register (struct gdbarch *gdbarch, int regnum)
 
 /* Implement the "cannot_store_register" gdbarch method.  */
 
-static int
+static bool
 arc_linux_cannot_store_register (struct gdbarch *gdbarch, int regnum)
 {
   /* Assume that register is writable if it is unknown.  */
