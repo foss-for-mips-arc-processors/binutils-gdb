@@ -72,6 +72,15 @@ const char * const riscv_pred_succ[16] =
   "i", "iw", "ir", "irw", "io", "iow", "ior", "iorw"
 };
 
+/* ACC registers.  */
+const char riscv_acc_names_numeric[NACC][NRC] =
+{
+  "m0",   "m1",   "m2",   "m3",   "m4",   "m5",   "m6",   "m7",
+  "m8",   "m9",   "m10",  "m11",  "m12",  "m13",  "m14",  "m15",
+  "m16",  "m17",  "m18",  "m19",  "m20",  "m21",  "m22",  "m23",
+  "m24",  "m25",  "m26",  "m27",  "m28",  "m29",  "m30",  "m31"
+};
+
 /* RVV registers.  */
 const char riscv_vecr_names_numeric[NVECR][NRC] =
 {
@@ -3790,7 +3799,33 @@ const struct riscv_opcode riscv_opcodes[] =
 {"mips.ffrecip.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FFRECIP_S, MASK_MIPS_FFRECIP_S, match_opcode, 0 },
 {"mips.ffsqrt.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FFSQRT_S, MASK_MIPS_FFSQRT_S, match_opcode, 0 },
 {"mips.ffrsqrt.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FFRSQRT_S, MASK_MIPS_FFRSQRT_S, match_opcode, 0 },
-
+/* MIPS vme instructions.  */
+{"mips.vopuu.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUUAVV, MASK_MIPS_VOPUUAVV, match_opcode, 0 },
+{"mips.vopus.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUSAVV, MASK_MIPS_VOPUSAVV, match_opcode, 0 },
+{"mips.vopsu.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSUAVV, MASK_MIPS_VOPSUAVV, match_opcode, 0 },
+{"mips.vopss.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSSAVV, MASK_MIPS_VOPSSAVV, match_opcode, 0 },
+{"mips.vopuuh.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUUHAVV, MASK_MIPS_VOPUUHAVV, match_opcode, 0 },
+{"mips.vopush.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUSHAVV, MASK_MIPS_VOPUSHAVV, match_opcode, 0 },
+{"mips.vopsuh.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSUHAVV, MASK_MIPS_VOPSUHAVV, match_opcode, 0 },
+{"mips.vopssh.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSSHAVV, MASK_MIPS_VOPSSHAVV, match_opcode, 0 },
+{"mips.vmacuu.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUUAVX, MASK_MIPS_VMACUUAVX, match_opcode, 0 },
+{"mips.vmacus.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUSAVX, MASK_MIPS_VMACUSAVX, match_opcode, 0 },
+{"mips.vmacsu.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSUAVX, MASK_MIPS_VMACSUAVX, match_opcode, 0 },
+{"mips.vmacss.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSSAVX, MASK_MIPS_VMACSSAVX, match_opcode, 0 },
+{"mips.vmacuuh.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUUHAVX, MASK_MIPS_VMACUUHAVX, match_opcode, 0 },
+{"mips.vmacush.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUSHAVX, MASK_MIPS_VMACUSHAVX, match_opcode, 0 },
+{"mips.vmacsuh.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSUHAVX, MASK_MIPS_VMACSUHAVX, match_opcode, 0 },
+{"mips.vmacssh.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSSHAVX, MASK_MIPS_VMACSSHAVX, match_opcode, 0 },
+{"mips.vfcvt.v.a",   0, INSN_CLASS_XMIPSVME, "Vd,s",    MATCH_MIPS_VFCVTVA, MASK_MIPS_VFCVTVA, match_opcode, 0 },
+{"mips.vnsra.v.a",   0, INSN_CLASS_XMIPSVME, "Vd,s,t",    MATCH_MIPS_VNSRAVA, MASK_MIPS_VNSRAVA, match_opcode, 0 },
+{"mips.vmv.v.a",   0, INSN_CLASS_XMIPSVME, "Vd,s",    MATCH_MIPS_VMVVA, MASK_MIPS_VMVVA, match_opcode, 0 },
+{"mips.vmv.a.v",   0, INSN_CLASS_XMIPSVME, "s,Vt",    MATCH_MIPS_VMVAV, MASK_MIPS_VMVAV, match_opcode, 0 },
+{"mips.azero.a",   0, INSN_CLASS_XMIPSVME, "Xmm",    MATCH_MIPS_AZERO_A, MASK_MIPS_AZERO_A, match_opcode, 0 },
+{"mips.adiscard",   0, INSN_CLASS_XMIPSVME, "",    MATCH_MIPS_ADISCARD, MASK_MIPS_ADISCARD, match_opcode, 0 },
+{"mips.msetmtype",   0, INSN_CLASS_XMIPSVME, "s,t",    MATCH_MIPS_MSETMTYPE, MASK_MIPS_MSETMTYPE, match_opcode, 0 },
+{"mips.msetml",   0, INSN_CLASS_XMIPSVME, "d,s,Xm2",    MATCH_MIPS_MSETML, MASK_MIPS_MSETML, match_opcode, 0 },
+{"mips.msetnl",   0, INSN_CLASS_XMIPSVME, "d,s,Xm2",    MATCH_MIPS_MSETNL, MASK_MIPS_MSETNL, match_opcode, 0 },
+{"mips.msetkl",   0, INSN_CLASS_XMIPSVME, "d,s",    MATCH_MIPS_MSETKL, MASK_MIPS_MSETKL, match_opcode, 0 },
 /* Vendor-specific (SpacemiT) instructions.  */
 /* Int Matrix Multi-Accumulation.  */
 {"smt.vmadot",   0, INSN_CLASS_XSMTVDOTII, "XpVd,Vs,VtXpx", MATCH_SMT_VMADOT, MASK_SMT_VMADOT, match_opcode, 0 },

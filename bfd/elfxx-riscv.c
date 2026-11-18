@@ -1678,6 +1678,7 @@ static const struct riscv_supported_ext riscv_supported_vendor_x_ext[] =
   {"xmipsmdiag",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xmipscorextend",   ISA_SPEC_CLASS_DRAFT, 1, 0, 0 },
   {"xmipsmginv",   ISA_SPEC_CLASS_DRAFT, 1, 0, 0 },
+  {"xmipsvme",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xsmtvdot",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xsmtvdotii",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
   {"xarcvudsp",		ISA_SPEC_CLASS_DRAFT,	1, 0, 0 },
@@ -3168,6 +3169,8 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
       return riscv_subset_supports (rps, "xmipscorextend");
     case INSN_CLASS_XMIPSMGINV:
       return riscv_subset_supports (rps, "xmipsmginv");
+    case INSN_CLASS_XMIPSVME:
+      return riscv_subset_supports (rps, "xmipsvme");
     case INSN_CLASS_XSMTVDOT:
       return riscv_subset_supports (rps, "xsmtvdot");
     case INSN_CLASS_XSMTVDOTII:
@@ -3546,6 +3549,8 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "xmipscorextend";
     case INSN_CLASS_XMIPSMGINV:
       return "xmipsmginv";
+    case INSN_CLASS_XMIPSVME:
+      return "xmipsvme";
     case INSN_CLASS_XARCVUDSP:
       return "xarcvudsp";
     case INSN_CLASS_XARCVBITREV:
