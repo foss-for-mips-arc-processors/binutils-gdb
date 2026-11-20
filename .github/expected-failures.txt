@@ -1,0 +1,4 @@
+arc-gf-elf FAIL: DT_TEXTREL in shared lib
+arc-gf-elf FAIL: DT_TEXTREL map file warning
+arc-gf-elf FAIL: pr20995
+arc64-gf-elf FAIL: .quad with division (fwdref)
