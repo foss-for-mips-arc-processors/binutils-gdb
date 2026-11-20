@@ -1,0 +1,81 @@
+name: Binutils baremetal test
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Binutils baremetal - ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04
+    timeout-minutes: 120
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - arc-gf-elf
+          - arc64-gf-elf
+          - riscv64-gf-elf
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates git build-essential bison flex texinfo \
+            zlib1g-dev dejagnu expect
+
+      - name: Checkout binutils
+        uses: actions/checkout@v7
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          ../configure \
+            --prefix="$PWD/install" \
+            --target=${{ matrix.target }} \
+            --enable-werror \
+            --enable-ld \
+            --disable-gold \
+            --disable-gprofng \
+            --disable-sim \
+            --disable-gdb \
+            --disable-nls \
+            --without-zstd
+
+      - name: Build
+        run: make -j"$(nproc)"
+        working-directory: build
+
+      - name: Check
+        run: make -k -j"$(nproc)" check || true
+        working-directory: build
+
+      - name: Verify test results
+        run: |
+          .github/scripts/check-test-results.sh \
+            ${{ matrix.target }} build .github/expected-failures.txt
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: binutils-logs-${{ matrix.target }}
+          path: |
+            build/**/binutils.log
+            build/**/binutils.sum
+            build/**/gas.log
+            build/**/gas.sum
+            build/**/ld.log
+            build/**/ld.sum
+          if-no-files-found: warn
