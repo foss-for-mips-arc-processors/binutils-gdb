@@ -29,3 +29,19 @@ Disassembly of section .text:
 [ 	]+[0-9a-f]+:[ 	]+58a6528b[ 	]+mips.swp[ 	]+a0,a1,4\(a2\)
 [ 	]+[0-9a-f]+:[ 	]+76d7dc8b[ 	]+mips.swp[ 	]+a3,a4,120\(a5\)
 [ 	]+[0-9a-f]+:[ 	]+76d7de8b[ 	]+mips.swp[ 	]+a3,a4,124\(a5\)
+
+[ 	]+[0-9a-f]+:[ 	]+ec0300f3[ 	]+mips.mcache[ 	]+0x0,\(t1\)
+[ 	]+[0-9a-f]+:[ 	]+edf300f3[ 	]+mips.mcache[ 	]+0x1f,\(t1\)
+[ 	]+[0-9a-f]+:[ 	]+ed0300f3[ 	]+mips.mcache[ 	]+0x10,\(t1\)
+[ 	]+[0-9a-f]+:[ 	]+ec2300f3[ 	]+mips.mcache[ 	]+0x2,\(t1\)
+
+[ 	]+[0-9a-f]+:[ 	]+ec0306f3[ 	]+mips.mdiagr[ 	]+t1
+[ 	]+[0-9a-f]+:[ 	]+ec1306f3[ 	]+mips.mdiagw[ 	]+t1
+
+[ 	]+[0-9a-f]+:[ 	]+8a73028b[ 	]+mips.corextend[ 	]+t0,t1,t2,5
+
+[ 	]+[0-9a-f]+:[ 	]+edf00ef3[ 	]+mips.mginv.fence
+[ 	]+[0-9a-f]+:[ 	]+ec628c73[ 	]+mips.mginv.gvma[ 	]+t0,t1
+[ 	]+[0-9a-f]+:[ 	]+ec028ef3[ 	]+mips.mginv.i[ 	]+t0
+[ 	]+[0-9a-f]+:[ 	]+ec628873[ 	]+mips.mginv.vma[ 	]+t0,t1
+[ 	]+[0-9a-f]+:[ 	]+ec628a73[ 	]+mips.mginv.vvma[ 	]+t0,t1

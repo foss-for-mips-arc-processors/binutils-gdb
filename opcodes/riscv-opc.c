@@ -72,6 +72,15 @@ const char * const riscv_pred_succ[16] =
   "i", "iw", "ir", "irw", "io", "iow", "ior", "iorw"
 };
 
+/* ACC registers.  */
+const char riscv_acc_names_numeric[NACC][NRC] =
+{
+  "m0",   "m1",   "m2",   "m3",   "m4",   "m5",   "m6",   "m7",
+  "m8",   "m9",   "m10",  "m11",  "m12",  "m13",  "m14",  "m15",
+  "m16",  "m17",  "m18",  "m19",  "m20",  "m21",  "m22",  "m23",
+  "m24",  "m25",  "m26",  "m27",  "m28",  "m29",  "m30",  "m31"
+};
+
 /* RVV registers.  */
 const char riscv_vecr_names_numeric[NVECR][NRC] =
 {
@@ -97,6 +106,12 @@ const char * const riscv_vsew[8] =
 const char * const riscv_vsew_altfmt[2] =
 {
   "e8alt", "e16alt"
+};
+
+/* The mips.msetmtypei awiden constants.  */
+const char * const riscv_awiden[8] =
+{
+  "w0", "w1", "w2", "w4", NULL, NULL, NULL, NULL
 };
 
 /* The vsetvli vlmul constants.  */
@@ -3689,6 +3704,15 @@ const struct riscv_opcode riscv_opcodes[] =
 {"mips.pref", 0, INSN_CLASS_XMIPSCBOP, "Xm@,Xm#(s)", MATCH_MIPS_PREF, MASK_MIPS_PREF, match_opcode, 0 },
 {"mips.sdp", 0, INSN_CLASS_XMIPSLSP, "t,r,Xm^(s)", MATCH_MIPS_SDP, MASK_MIPS_SDP, match_opcode, 0 },
 {"mips.swp", 0, INSN_CLASS_XMIPSLSP, "t,r,Xm&(s)", MATCH_MIPS_SWP, MASK_MIPS_SWP, match_opcode, 0 },
+{"mips.mcache", 0, INSN_CLASS_XMIPSCBOM, "<,(s)", MATCH_MIPS_MCACHE, MASK_MIPS_MCACHE, match_opcode, 0 },
+{"mips.mdiagr", 0, INSN_CLASS_XMIPSMDIAG, "s", MATCH_MIPS_MDIAGR, MASK_MIPS_MDIAGR, match_opcode, 0 },
+{"mips.mdiagw", 0, INSN_CLASS_XMIPSMDIAG, "s", MATCH_MIPS_MDIAGW, MASK_MIPS_MDIAGW, match_opcode, 0 },
+{"mips.corextend", 0, INSN_CLASS_XMIPSCOREXTEND, "d,s,t,Xm4", MATCH_MIPS_COREXTEND, MASK_MIPS_COREXTEND, match_opcode, 0 },
+{"mips.mginv.fence", 0, INSN_CLASS_XMIPSMGINV, "", MATCH_MIPS_MGINV_FENCE, MASK_MIPS_MGINV_FENCE, match_opcode, 0 },
+{"mips.mginv.gvma", 0, INSN_CLASS_XMIPSMGINV, "s,t", MATCH_MIPS_MGINV_GVMA, MASK_MIPS_MGINV_GVMA, match_opcode, 0 },
+{"mips.mginv.i", 0, INSN_CLASS_XMIPSMGINV, "s", MATCH_MIPS_MGINV_I, MASK_MIPS_MGINV_I, match_opcode, 0 },
+{"mips.mginv.vma", 0, INSN_CLASS_XMIPSMGINV, "s,t", MATCH_MIPS_MGINV_VMA, MASK_MIPS_MGINV_VMA, match_opcode, 0 },
+{"mips.mginv.vvma", 0, INSN_CLASS_XMIPSMGINV, "s,t", MATCH_MIPS_MGINV_VVMA, MASK_MIPS_MGINV_VVMA, match_opcode, 0 },
 /* MIPS trig instructions.  */
 {"mips.fsinhz.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FSINHZ_S, MASK_MIPS_FSINHZ_S, match_opcode, 0 },
 {"mips.fcoshz.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FCOSHZ_S, MASK_MIPS_FCOSHZ_S, match_opcode, 0 },
@@ -3702,7 +3726,67 @@ const struct riscv_opcode riscv_opcodes[] =
 {"mips.ffrecip.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FFRECIP_S, MASK_MIPS_FFRECIP_S, match_opcode, 0 },
 {"mips.ffsqrt.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FFSQRT_S, MASK_MIPS_FFSQRT_S, match_opcode, 0 },
 {"mips.ffrsqrt.s",   0, INSN_CLASS_XMIPSTRIG, "D,S",    MATCH_MIPS_FFRSQRT_S, MASK_MIPS_FFRSQRT_S, match_opcode, 0 },
-
+/* MIPS vme instructions.  */
+{"mips.vopuu.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUUAVV, MASK_MIPS_VOPUUAVV, match_opcode, 0 },
+{"mips.vopus.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUSAVV, MASK_MIPS_VOPUSAVV, match_opcode, 0 },
+{"mips.vopsu.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSUAVV, MASK_MIPS_VOPSUAVV, match_opcode, 0 },
+{"mips.vopss.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSSAVV, MASK_MIPS_VOPSSAVV, match_opcode, 0 },
+{"mips.vopuuh.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUUHAVV, MASK_MIPS_VOPUUHAVV, match_opcode, 0 },
+{"mips.vopush.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPUSHAVV, MASK_MIPS_VOPUSHAVV, match_opcode, 0 },
+{"mips.vopsuh.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSUHAVV, MASK_MIPS_VOPSUHAVV, match_opcode, 0 },
+{"mips.vopssh.avv",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,Vs",    MATCH_MIPS_VOPSSHAVV, MASK_MIPS_VOPSSHAVV, match_opcode, 0 },
+{"mips.vmacuu.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUUAVX, MASK_MIPS_VMACUUAVX, match_opcode, 0 },
+{"mips.vmacus.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUSAVX, MASK_MIPS_VMACUSAVX, match_opcode, 0 },
+{"mips.vmacsu.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSUAVX, MASK_MIPS_VMACSUAVX, match_opcode, 0 },
+{"mips.vmacss.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSSAVX, MASK_MIPS_VMACSSAVX, match_opcode, 0 },
+{"mips.vmacuuh.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUUHAVX, MASK_MIPS_VMACUUHAVX, match_opcode, 0 },
+{"mips.vmacush.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACUSHAVX, MASK_MIPS_VMACUSHAVX, match_opcode, 0 },
+{"mips.vmacsuh.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSUHAVX, MASK_MIPS_VMACSUHAVX, match_opcode, 0 },
+{"mips.vmacssh.avx",   0, INSN_CLASS_XMIPSVME, "Xmm,Vt,s",    MATCH_MIPS_VMACSSHAVX, MASK_MIPS_VMACSSHAVX, match_opcode, 0 },
+{"mips.vfcvt.v.a",   0, INSN_CLASS_XMIPSVME, "Vd,s",    MATCH_MIPS_VFCVTVA, MASK_MIPS_VFCVTVA, match_opcode, 0 },
+{"mips.vnsra.v.a",   0, INSN_CLASS_XMIPSVME, "Vd,s,t",    MATCH_MIPS_VNSRAVA, MASK_MIPS_VNSRAVA, match_opcode, 0 },
+{"mips.vmv.v.a",   0, INSN_CLASS_XMIPSVME, "Vd,s",    MATCH_MIPS_VMVVA, MASK_MIPS_VMVVA, match_opcode, 0 },
+{"mips.vmv.a.v",   0, INSN_CLASS_XMIPSVME, "s,Vt",    MATCH_MIPS_VMVAV, MASK_MIPS_VMVAV, match_opcode, 0 },
+{"mips.azero.a",   0, INSN_CLASS_XMIPSVME, "Xmm",    MATCH_MIPS_AZERO_A, MASK_MIPS_AZERO_A, match_opcode, 0 },
+{"mips.adiscard",   0, INSN_CLASS_XMIPSVME, "",    MATCH_MIPS_ADISCARD, MASK_MIPS_ADISCARD, match_opcode, 0 },
+{"mips.msetmtype",   0, INSN_CLASS_XMIPSVME, "s,t",    MATCH_MIPS_MSETMTYPE, MASK_MIPS_MSETMTYPE, match_opcode, 0 },
+{"mips.msetmtypei",   0, INSN_CLASS_XMIPSVME, "Xme,Xmw",    MATCH_MIPS_MSETMTYPEI, MASK_MIPS_MSETMTYPEI, match_opcode, 0 },
+{"mips.msetml",   0, INSN_CLASS_XMIPSVME, "d,s,Xm2",    MATCH_MIPS_MSETML, MASK_MIPS_MSETML, match_opcode, 0 },
+{"mips.msetnl",   0, INSN_CLASS_XMIPSVME, "d,s,Xm2",    MATCH_MIPS_MSETNL, MASK_MIPS_MSETNL, match_opcode, 0 },
+{"mips.msetkl",   0, INSN_CLASS_XMIPSVME, "d,s",    MATCH_MIPS_MSETKL, MASK_MIPS_MSETKL, match_opcode, 0 },
+/* MIPS cache instructions.  */
+{"mips.dld",   0, INSN_CLASS_XMIPSCACHE,  "d,s",    MATCH_MIPS_DLD, MASK_MIPS_DLD, match_opcode, 0 },
+{"mips.dsd",   0, INSN_CLASS_XMIPSCACHE,  "t,s",    MATCH_MIPS_DSD, MASK_MIPS_DSD, match_opcode, 0 },
+{"mips.iii.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_III_L1, MASK_MIPS_III_L1, match_opcode, 0 },
+{"mips.iii.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_III_L2, MASK_MIPS_III_L2, match_opcode, 0 },
+{"mips.iii.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_III_ALL, MASK_MIPS_III_ALL, match_opcode, 0 },
+{"mips.ipfl.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_IPFL_L1, MASK_MIPS_IPFL_L1, match_opcode, 0 },
+{"mips.ihu.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_IHU_L1, MASK_MIPS_IHU_L1, match_opcode, 0 },
+{"mips.ipfl.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_IPFL_L2, MASK_MIPS_IPFL_L2, match_opcode, 0 },
+{"mips.hi.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_HI_ALL, MASK_MIPS_HI_ALL, match_opcode, 0 },
+{"mips.dpfl.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPFL_L1, MASK_MIPS_DPFL_L1, match_opcode, 0 },
+{"mips.dpfl.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPFL_L2, MASK_MIPS_DPFL_L2, match_opcode, 0 },
+{"mips.dhu.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHU_L1, MASK_MIPS_DHU_L1, match_opcode, 0 },
+{"mips.dii.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DII_L1, MASK_MIPS_DII_L1, match_opcode, 0 },
+{"mips.dii.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DII_L2, MASK_MIPS_DII_L2, match_opcode, 0 },
+{"mips.dii.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DII_ALL, MASK_MIPS_DII_ALL, match_opcode, 0 },
+{"mips.diwi.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DIWI_ALL, MASK_MIPS_DIWI_ALL, match_opcode, 0 },
+{"mips.diw.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DIW_ALL, MASK_MIPS_DIW_ALL, match_opcode, 0 },
+{"mips.ipf.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_IPF_L1, MASK_MIPS_IPF_L1, match_opcode, 0 },
+{"mips.ipf.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_IPF_L2, MASK_MIPS_IPF_L2, match_opcode, 0 },
+{"mips.ihi.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_IHI_L1, MASK_MIPS_IHI_L1, match_opcode, 0 },
+{"mips.dpf.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPF_L1, MASK_MIPS_DPF_L1, match_opcode, 0 },
+{"mips.dpf.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPF_L2, MASK_MIPS_DPF_L2, match_opcode, 0 },
+{"mips.dpfw.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPFW_L1, MASK_MIPS_DPFW_L1, match_opcode, 0 },
+{"mips.dpfw.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPFW_L2, MASK_MIPS_DPFW_L2, match_opcode, 0 },
+{"mips.dpfz.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPFZ_L1, MASK_MIPS_DPFZ_L1, match_opcode, 0 },
+{"mips.dpfz.l2",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DPFZ_L2, MASK_MIPS_DPFZ_L2, match_opcode, 0 },
+{"mips.dhi.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHI_ALL, MASK_MIPS_DHI_ALL, match_opcode, 0 },
+{"mips.dhi.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHI_L1, MASK_MIPS_DHI_L1, match_opcode, 0 },
+{"mips.dhwi.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHWI_ALL, MASK_MIPS_DHWI_ALL, match_opcode, 0 },
+{"mips.dhwi.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHWI_L1, MASK_MIPS_DHWI_L1, match_opcode, 0 },
+{"mips.dhw.all",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHW_ALL, MASK_MIPS_DHW_ALL, match_opcode, 0 },
+{"mips.dhw.l1",   0, INSN_CLASS_XMIPSCACHE,  "s",    MATCH_MIPS_DHW_L1, MASK_MIPS_DHW_L1, match_opcode, 0 },
 /* Vendor-specific (SpacemiT) instructions.  */
 /* Int Matrix Multi-Accumulation.  */
 {"smt.vmadot",   0, INSN_CLASS_XSMTVDOTII, "XpVd,Vs,VtXpx", MATCH_SMT_VMADOT, MASK_SMT_VMADOT, match_opcode, 0 },

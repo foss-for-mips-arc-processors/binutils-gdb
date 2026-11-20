@@ -141,6 +141,8 @@ static inline unsigned int riscv_insn_length (insn_t insn)
   ((RV_X(x, 25, 2) << 5) | (RV_X(x, 9, 3) << 2))
 #define EXTRACT_MIPS_SDP_IMM(x) \
   ((RV_X(x, 25, 2) << 5) | (RV_X(x, 10, 2) << 3))
+#define EXTRACT_MIPS_COREXTEND_IMM(x) \
+  (RV_X(x, 25, 4) << 0)
 /* Vendor-specific (SPACEMIT) encode macros.  */
 #define ENCODE_SPACEMIT_IME_UIMM2_SP(x) \
   ((RV_X (x, 0, 1) << 7) | (RV_X (x, 1, 1) << 15))
@@ -221,6 +223,8 @@ static inline unsigned int riscv_insn_length (insn_t insn)
   ((RV_X(x, 5, 2) << 25) | (RV_X(x, 2, 3) << 9))
 #define ENCODE_MIPS_SDP_IMM(x) \
   ((RV_X(x, 5, 2) << 25) | (RV_X(x, 3, 2) << 10))
+#define ENCODE_MIPS_COREXTEND_IMM(x) \
+  (RV_X(x, 0, 4) << 25)
 
 #define VALID_ITYPE_IMM(x) (EXTRACT_ITYPE_IMM(ENCODE_ITYPE_IMM(x)) == (x))
 #define VALID_STYPE_IMM(x) (EXTRACT_STYPE_IMM(ENCODE_STYPE_IMM(x)) == (x))
@@ -410,8 +414,14 @@ static inline unsigned int riscv_insn_length (insn_t insn)
 #define OP_SH_XSO1              26
 
 /* MIPS fields.  */
+#define OP_MASK_MIPS_IMM2    0x3
+#define OP_SH_MIPS_IMM2    23
 #define OP_MASK_MIPS_IMM9		0x1ff
 #define OP_SH_MIPS_IMM9		20
+#define OP_MASK_MIPS_IMMe    0x3
+#define OP_SH_MIPS_IMMe    23
+#define OP_MASK_MIPS_IMMw    0x3
+#define OP_SH_MIPS_IMMw    15
 #define OP_MASK_MIPS_HINT		0x1f
 #define OP_SH_MIPS_HINT		7
 #define OP_MASK_MIPS_LWP_OFFSET     0x1f
@@ -426,6 +436,8 @@ static inline unsigned int riscv_insn_length (insn_t insn)
 #define OP_SH_MIPS_SDP_OFFSET10     10
 #define OP_MASK_MIPS_SDP_OFFSET25   0x3
 #define OP_SH_MIPS_SDP_OFFSET25     25
+#define OP_MASK_MIPS_COREXTEND_OFFSET     0xf
+#define OP_SH_MIPS_COREXTEND_OFFSET       25
 
 /* SpacemiT fields.  */
 #define OP_MASK_SPACEMIT_IME_VD		0xf
@@ -459,6 +471,7 @@ static inline unsigned int riscv_insn_length (insn_t insn)
 
 #define NGPR 32
 #define NFPR 32
+#define NACC 32
 
 /* These fake label defines are use by both the assembler, and
    libopcodes.  The assembler uses this when it needs to generate a fake
@@ -634,11 +647,17 @@ enum riscv_insn_class
   INSN_CLASS_XSFVQMACCQOQ,
   INSN_CLASS_XSFVQMACCDOD,
   INSN_CLASS_XSFVFNRCLIPXFQF,
+  INSN_CLASS_XMIPSCACHE,
   INSN_CLASS_XMIPSCBOP,
   INSN_CLASS_XMIPSCMOV,
   INSN_CLASS_XMIPSEXECTL,
   INSN_CLASS_XMIPSLSP,
   INSN_CLASS_XMIPSTRIG,
+  INSN_CLASS_XMIPSCBOM,
+  INSN_CLASS_XMIPSMDIAG,
+  INSN_CLASS_XMIPSCOREXTEND,
+  INSN_CLASS_XMIPSMGINV,
+  INSN_CLASS_XMIPSVME,
   INSN_CLASS_XSMTVDOT,
   INSN_CLASS_XSMTVDOTII,
   INSN_CLASS_XSMTVDOT_OR_XSMTVDOTII,
@@ -783,10 +802,12 @@ extern const char riscv_gpr_names_numeric[NGPR][NRC];
 extern const char riscv_gpr_names_abi[NGPR][NRC];
 extern const char riscv_fpr_names_numeric[NFPR][NRC];
 extern const char riscv_fpr_names_abi[NFPR][NRC];
+extern const char riscv_acc_names_numeric[NACC][NRC];
 extern const char * const riscv_rm[8];
 extern const char * const riscv_pred_succ[16];
 extern const char riscv_vecr_names_numeric[NVECR][NRC];
 extern const char riscv_vecm_names_numeric[NVECM][NRC];
+extern const char * const riscv_awiden[8];
 extern const char * const riscv_vsew[8];
 extern const char * const riscv_vsew_altfmt[2];
 extern const char * const riscv_vlmul[8];

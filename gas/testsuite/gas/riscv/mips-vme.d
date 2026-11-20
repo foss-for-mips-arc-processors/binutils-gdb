@@ -1,0 +1,116 @@
+#as:
+#objdump: -dr
+
+.*:[   ]+file format .*
+
+
+Disassembly of section .text:
+
+0+000 <.text>:
+[	 ]+[0-9a-f]+:[	 ]+ce3020f3[	 ]+csrr[	 ]+ra,mips.mtype
+[	 ]+[0-9a-f]+:[	 ]+ce311073[	 ]+csrw[	 ]+mips.mtype,sp
+[	 ]+[0-9a-f]+:[	 ]+0280007b[	 ]+mips.vopuu.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+0288007b[	 ]+mips.vopuu.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+0388007b[	 ]+mips.vopuu.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0388027b[	 ]+mips.vopuu.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0680007b[	 ]+mips.vopus.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+0688007b[	 ]+mips.vopus.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+0788007b[	 ]+mips.vopus.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0788027b[	 ]+mips.vopus.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0a80007b[	 ]+mips.vopsu.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+0a88007b[	 ]+mips.vopsu.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+0b88007b[	 ]+mips.vopsu.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0b88027b[	 ]+mips.vopsu.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0e80007b[	 ]+mips.vopss.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+0e88007b[	 ]+mips.vopss.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+0f88007b[	 ]+mips.vopss.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0f88027b[	 ]+mips.vopss.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1280007b[	 ]+mips.vopuuh.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+1288007b[	 ]+mips.vopuuh.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+1388007b[	 ]+mips.vopuuh.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1388027b[	 ]+mips.vopuuh.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1680007b[	 ]+mips.vopush.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+1688007b[	 ]+mips.vopush.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+1788007b[	 ]+mips.vopush.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1788027b[	 ]+mips.vopush.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1a80007b[	 ]+mips.vopsuh.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+1a88007b[	 ]+mips.vopsuh.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+1b88007b[	 ]+mips.vopsuh.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1b88027b[	 ]+mips.vopsuh.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1e80007b[	 ]+mips.vopssh.avv[	 ]+m0,v8,v0
+[	 ]+[0-9a-f]+:[	 ]+1e88007b[	 ]+mips.vopssh.avv[	 ]+m0,v8,v16
+[	 ]+[0-9a-f]+:[	 ]+1f88007b[	 ]+mips.vopssh.avv[	 ]+m0,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+1f88027b[	 ]+mips.vopssh.avv[	 ]+m4,v24,v16
+[	 ]+[0-9a-f]+:[	 ]+0280407b[	 ]+mips.vmacuu.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+0288407b[	 ]+mips.vmacuu.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+0388407b[	 ]+mips.vmacuu.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0388427b[	 ]+mips.vmacuu.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0680407b[	 ]+mips.vmacus.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+0688407b[	 ]+mips.vmacus.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+0788407b[	 ]+mips.vmacus.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0788427b[	 ]+mips.vmacus.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0a80407b[	 ]+mips.vmacsu.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+0a88407b[	 ]+mips.vmacsu.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+0b88407b[	 ]+mips.vmacsu.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0b88427b[	 ]+mips.vmacsu.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0e80407b[	 ]+mips.vmacss.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+0e88407b[	 ]+mips.vmacss.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+0f88407b[	 ]+mips.vmacss.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+0f88427b[	 ]+mips.vmacss.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1280407b[	 ]+mips.vmacuuh.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+1288407b[	 ]+mips.vmacuuh.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+1388407b[	 ]+mips.vmacuuh.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1388427b[	 ]+mips.vmacuuh.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1680407b[	 ]+mips.vmacush.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+1688407b[	 ]+mips.vmacush.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+1788407b[	 ]+mips.vmacush.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1788427b[	 ]+mips.vmacush.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1a80407b[	 ]+mips.vmacsuh.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+1a88407b[	 ]+mips.vmacsuh.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+1b88407b[	 ]+mips.vmacsuh.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1b88427b[	 ]+mips.vmacsuh.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1e80407b[	 ]+mips.vmacssh.avx[	 ]+m0,v8,zero
+[	 ]+[0-9a-f]+:[	 ]+1e88407b[	 ]+mips.vmacssh.avx[	 ]+m0,v8,a6
+[	 ]+[0-9a-f]+:[	 ]+1f88407b[	 ]+mips.vmacssh.avx[	 ]+m0,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+1f88427b[	 ]+mips.vmacssh.avx[	 ]+m4,v24,a6
+[	 ]+[0-9a-f]+:[	 ]+460a69fb[	 ]+mips.vfcvt.v.a[	 ]+v19,s4
+[	 ]+[0-9a-f]+:[	 ]+460a6a7b[	 ]+mips.vfcvt.v.a[	 ]+v20,s4
+[	 ]+[0-9a-f]+:[	 ]+460aea7b[	 ]+mips.vfcvt.v.a[	 ]+v20,s5
+[	 ]+[0-9a-f]+:[	 ]+4b5a69fb[	 ]+mips.vnsra.v.a[	 ]+v19,s4,s5
+[	 ]+[0-9a-f]+:[	 ]+4b5a6a7b[	 ]+mips.vnsra.v.a[	 ]+v20,s4,s5
+[	 ]+[0-9a-f]+:[	 ]+4b5aea7b[	 ]+mips.vnsra.v.a[	 ]+v20,s5,s5
+[	 ]+[0-9a-f]+:[	 ]+4b6aea7b[	 ]+mips.vnsra.v.a[	 ]+v20,s5,s6
+[	 ]+[0-9a-f]+:[	 ]+43f9e97b[	 ]+mips.vmv.v.a[	 ]+v18,s3
+[	 ]+[0-9a-f]+:[	 ]+43fa697b[	 ]+mips.vmv.v.a[	 ]+v18,s4
+[	 ]+[0-9a-f]+:[	 ]+43fa69fb[	 ]+mips.vmv.v.a[	 ]+v19,s4
+[	 ]+[0-9a-f]+:[	 ]+5f07e07b[	 ]+mips.vmv.a.v[	 ]+a5,v16
+[	 ]+[0-9a-f]+:[	 ]+5f17e07b[	 ]+mips.vmv.a.v[	 ]+a5,v17
+[	 ]+[0-9a-f]+:[	 ]+5f18607b[	 ]+mips.vmv.a.v[	 ]+a6,v17
+[	 ]+[0-9a-f]+:[	 ]+43e0607b[	 ]+mips.azero.a[	 ]+m0
+[	 ]+[0-9a-f]+:[	 ]+43e0627b[	 ]+mips.azero.a[	 ]+m4
+[	 ]+[0-9a-f]+:[	 ]+43e0647b[	 ]+mips.azero.a[	 ]+m8
+[	 ]+[0-9a-f]+:[	 ]+43e0667b[	 ]+mips.azero.a[	 ]+m12
+[	 ]+[0-9a-f]+:[	 ]+43c0607b[	 ]+mips.adiscard
+[	 ]+[0-9a-f]+:[	 ]+8242f07b[	 ]+mips.msetmtype[	 ]+t0,tp
+[	 ]+[0-9a-f]+:[	 ]+8252707b[	 ]+mips.msetmtype[	 ]+tp,t0
+[	 ]+[0-9a-f]+:[	 ]+8253707b[	 ]+mips.msetmtype[	 ]+t1,t0
+[	 ]+[0-9a-f]+:[	 ]+8262f07b[	 ]+mips.msetmtype[	 ]+t0,t1
+[	 ]+[0-9a-f]+:[	 ]+8440707b[	 ]+mips.msetmtypei[	 ]+e8,w0
+[	 ]+[0-9a-f]+:[	 ]+84c0707b[	 ]+mips.msetmtypei[	 ]+e16,w0
+[	 ]+[0-9a-f]+:[	 ]+8540707b[	 ]+mips.msetmtypei[	 ]+e32,w0
+[	 ]+[0-9a-f]+:[	 ]+85c0707b[	 ]+mips.msetmtypei[	 ]+e64,w0
+[	 ]+[0-9a-f]+:[	 ]+85c0f07b[	 ]+mips.msetmtypei[	 ]+e64,w1
+[	 ]+[0-9a-f]+:[	 ]+85c1707b[	 ]+mips.msetmtypei[	 ]+e64,w2
+[	 ]+[0-9a-f]+:[	 ]+85c1f07b[	 ]+mips.msetmtypei[	 ]+e64,w4
+[	 ]+[0-9a-f]+:[	 ]+840372fb[	 ]+mips.msetnl[	 ]+t0,t1,0
+[	 ]+[0-9a-f]+:[	 ]+848372fb[	 ]+mips.msetnl[	 ]+t0,t1,1
+[	 ]+[0-9a-f]+:[	 ]+850372fb[	 ]+mips.msetnl[	 ]+t0,t1,2
+[	 ]+[0-9a-f]+:[	 ]+858372fb[	 ]+mips.msetnl[	 ]+t0,t1,3
+[	 ]+[0-9a-f]+:[	 ]+841473fb[	 ]+mips.msetml[	 ]+t2,s0,0
+[	 ]+[0-9a-f]+:[	 ]+849574fb[	 ]+mips.msetml[	 ]+s1,a0,1
+[	 ]+[0-9a-f]+:[	 ]+851675fb[	 ]+mips.msetml[	 ]+a1,a2,2
+[	 ]+[0-9a-f]+:[	 ]+859776fb[	 ]+mips.msetml[	 ]+a3,a4,3
+[	 ]+[0-9a-f]+:[	 ]+842473fb[	 ]+mips.msetkl[	 ]+t2,s0
+[	 ]+[0-9a-f]+:[	 ]+842574fb[	 ]+mips.msetkl[	 ]+s1,a0
+[	 ]+[0-9a-f]+:[	 ]+842675fb[	 ]+mips.msetkl[	 ]+a1,a2
+[	 ]+[0-9a-f]+:[	 ]+842776fb[	 ]+mips.msetkl[	 ]+a3,a4
