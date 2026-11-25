@@ -105,18 +105,20 @@ store_csr (SIM_CPU *cpu, const char *name, int csr, unsigned_word *reg,
     case CSR_FRM:
       val &= 0x7;
       *reg = val;
-      riscv_cpu->csr.fcsr = (riscv_cpu->csr.fcsr & ~0xe0) | (val << 5);
+      riscv_cpu->csr[CSR_FCSR]
+	= (riscv_cpu->csr[CSR_FCSR] & ~0xe0) | (val << 5);
       break;
     case CSR_FFLAGS:
       val &= 0x1f;
       *reg = val;
-      riscv_cpu->csr.fcsr = (riscv_cpu->csr.fcsr & ~0x1f) | val;
+      riscv_cpu->csr[CSR_FCSR]
+	= (riscv_cpu->csr[CSR_FCSR] & ~0x1f) | val;
       break;
     /* Keep the sub-fields in sync.  */
     case CSR_FCSR:
       *reg = val;
-      riscv_cpu->csr.frm = (val >> 5) & 0x7;
-      riscv_cpu->csr.fflags = val & 0x1f;
+      riscv_cpu->csr[CSR_FRM] = (val >> 5) & 0x7;
+      riscv_cpu->csr[CSR_FFLAGS] = val & 0x1f;
       break;
 
     /* Allow certain registers only in respective modes.  */
@@ -540,9 +542,9 @@ execute_i (SIM_CPU *cpu, unsigned_word iw, const struct riscv_opcode *op)
 #define DECLARE_CSR(name, num, ...) \
 	case num: \
 	  store_rd (cpu, rd, \
-		    fetch_csr (cpu, #name, num, &riscv_cpu->csr.name)); \
-	  store_csr (cpu, #name, num, &riscv_cpu->csr.name, \
-		     riscv_cpu->csr.name & !riscv_cpu->regs[rs1]); \
+		    fetch_csr (cpu, #name, num, &riscv_cpu->csr[num])); \
+	  store_csr (cpu, #name, num, &riscv_cpu->csr[num], \
+		     riscv_cpu->csr[num] & !riscv_cpu->regs[rs1]); \
 	  break;
 #include "opcode/riscv-opc.h"
 #undef DECLARE_CSR
@@ -555,9 +557,9 @@ execute_i (SIM_CPU *cpu, unsigned_word iw, const struct riscv_opcode *op)
 #define DECLARE_CSR(name, num, ...) \
 	case num: \
 	  store_rd (cpu, rd, \
-		    fetch_csr (cpu, #name, num, &riscv_cpu->csr.name)); \
-	  store_csr (cpu, #name, num, &riscv_cpu->csr.name, \
-		     riscv_cpu->csr.name | riscv_cpu->regs[rs1]); \
+		    fetch_csr (cpu, #name, num, &riscv_cpu->csr[num])); \
+	  store_csr (cpu, #name, num, &riscv_cpu->csr[num], \
+		     riscv_cpu->csr[num] | riscv_cpu->regs[rs1]); \
 	  break;
 #include "opcode/riscv-opc.h"
 #undef DECLARE_CSR
@@ -570,8 +572,8 @@ execute_i (SIM_CPU *cpu, unsigned_word iw, const struct riscv_opcode *op)
 #define DECLARE_CSR(name, num, ...) \
 	case num: \
 	  store_rd (cpu, rd, \
-		    fetch_csr (cpu, #name, num, &riscv_cpu->csr.name)); \
-	  store_csr (cpu, #name, num, &riscv_cpu->csr.name, \
+		    fetch_csr (cpu, #name, num, &riscv_cpu->csr[num])); \
+	  store_csr (cpu, #name, num, &riscv_cpu->csr[num], \
 		     riscv_cpu->regs[rs1]); \
 	  break;
 #include "opcode/riscv-opc.h"
@@ -582,37 +584,37 @@ execute_i (SIM_CPU *cpu, unsigned_word iw, const struct riscv_opcode *op)
     case MATCH_RDCYCLE:
       TRACE_INSN (cpu, "rdcycle %s;", rd_name);
       store_rd (cpu, rd,
-		fetch_csr (cpu, "cycle", CSR_CYCLE, &riscv_cpu->csr.cycle));
+		fetch_csr (cpu, "cycle", CSR_CYCLE, &riscv_cpu->csr[CSR_CYCLE]));
       break;
     case MATCH_RDCYCLEH:
       TRACE_INSN (cpu, "rdcycleh %s;", rd_name);
       RISCV_ASSERT_RV32 (cpu, "insn: %s", op->name);
       store_rd (cpu, rd,
-		fetch_csr (cpu, "cycleh", CSR_CYCLEH, &riscv_cpu->csr.cycleh));
+		fetch_csr (cpu, "cycleh", CSR_CYCLEH, &riscv_cpu->csr[CSR_CYCLEH]));
       break;
     case MATCH_RDINSTRET:
       TRACE_INSN (cpu, "rdinstret %s;", rd_name);
       store_rd (cpu, rd,
 		fetch_csr (cpu, "instret", CSR_INSTRET,
-			   &riscv_cpu->csr.instret));
+			   &riscv_cpu->csr[CSR_INSTRET]));
       break;
     case MATCH_RDINSTRETH:
       TRACE_INSN (cpu, "rdinstreth %s;", rd_name);
       RISCV_ASSERT_RV32 (cpu, "insn: %s", op->name);
       store_rd (cpu, rd,
 		fetch_csr (cpu, "instreth", CSR_INSTRETH,
-			   &riscv_cpu->csr.instreth));
+			   &riscv_cpu->csr[CSR_INSTRETH]));
       break;
     case MATCH_RDTIME:
       TRACE_INSN (cpu, "rdtime %s;", rd_name);
       store_rd (cpu, rd,
-		fetch_csr (cpu, "time", CSR_TIME, &riscv_cpu->csr.time));
+		fetch_csr (cpu, "time", CSR_TIME, &riscv_cpu->csr[CSR_TIME]));
       break;
     case MATCH_RDTIMEH:
       TRACE_INSN (cpu, "rdtimeh %s;", rd_name);
       RISCV_ASSERT_RV32 (cpu, "insn: %s", op->name);
       store_rd (cpu, rd,
-		fetch_csr (cpu, "timeh", CSR_TIMEH, &riscv_cpu->csr.timeh));
+		fetch_csr (cpu, "timeh", CSR_TIMEH, &riscv_cpu->csr[CSR_TIMEH]));
       break;
 
     case MATCH_FENCE:
@@ -1304,7 +1306,7 @@ execute_one (SIM_CPU *cpu, unsigned_word iw, const struct riscv_opcode *op)
       return execute_a (cpu, iw, op);
     case INSN_CLASS_ZCA:
       /* Check whether model with C extension is selected.  */
-      if (riscv_cpu->csr.misa & 4)
+      if (riscv_cpu->csr[CSR_MISA] & 4)
 	return execute_c (cpu, iw, op);
       else
 	{
@@ -1380,8 +1382,8 @@ void step_once (SIM_CPU *cpu)
 
   /* TODO: Handle overflow into high 32 bits.  */
   /* TODO: Try to use a common counter and only update on demand (reads).  */
-  ++riscv_cpu->csr.cycle;
-  ++riscv_cpu->csr.instret;
+  ++riscv_cpu->csr[CSR_CYCLE];
+  ++riscv_cpu->csr[CSR_INSTRET];
 
   riscv_cpu->pc = pc;
 }
@@ -1429,7 +1431,7 @@ reg_fetch (sim_cpu *cpu, int rn, void *buf, int len)
 
 #define DECLARE_CSR(name, num, ...) \
     case SIM_RISCV_ ## num ## _REGNUM: \
-      memcpy (buf, &riscv_cpu->csr.name, len); \
+      memcpy (buf, &riscv_cpu->csr[num], len); \
       return len;
 #include "opcode/riscv-opc.h"
 #undef DECLARE_CSR
@@ -1464,7 +1466,7 @@ reg_store (sim_cpu *cpu, int rn, const void *buf, int len)
 
 #define DECLARE_CSR(name, num, ...) \
     case SIM_RISCV_ ## num ## _REGNUM: \
-      memcpy (&riscv_cpu->csr.name, buf, len); \
+      memcpy (&riscv_cpu->csr[num], buf, len); \
       return len;
 #include "opcode/riscv-opc.h"
 #undef DECLARE_CSR
@@ -1500,10 +1502,10 @@ initialize_cpu (SIM_DESC sd, SIM_CPU *cpu, int mhartid)
 	  riscv_hash[OP_HASH_IDX (op->match)] = op;
     }
 
-  riscv_cpu->csr.misa = 0;
+  riscv_cpu->csr[CSR_MISA] = 0;
   /* RV32 sets this field to 0, and we don't really support RV128 yet.  */
   if (RISCV_XLEN (cpu) == 64)
-    riscv_cpu->csr.misa |= (uint64_t)2 << 62;
+    riscv_cpu->csr[CSR_MISA] |= (uint64_t)2 << 62;
 
   /* Skip the leading "rv" prefix and the two numbers.  */
   extensions = MODEL_NAME (CPU_MODEL (cpu)) + 4;
@@ -1516,14 +1518,14 @@ initialize_cpu (SIM_DESC sd, SIM_CPU *cpu, int mhartid)
       else if (strchr (extensions, ext) != NULL)
 	{
 	  if (ext == 'G')
-	    riscv_cpu->csr.misa |= 0x1129;  /* G = IMAFD.  */
+	    riscv_cpu->csr[CSR_MISA] |= 0x1129;  /* G = IMAFD.  */
 	  else
-	    riscv_cpu->csr.misa |= (1 << i);
+	    riscv_cpu->csr[CSR_MISA] |= (1 << i);
 	}
     }
 
-  riscv_cpu->csr.mimpid = 0x8000;
-  riscv_cpu->csr.mhartid = mhartid;
+  riscv_cpu->csr[CSR_MIMPID] = 0x8000;
+  riscv_cpu->csr[CSR_MHARTID] = mhartid;
 }
 
 /* Some utils don't like having a NULL environ.  */
