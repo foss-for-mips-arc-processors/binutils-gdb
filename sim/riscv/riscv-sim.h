@@ -47,11 +47,7 @@ struct riscv_sim_cpu {
   };
   sim_cia pc;
 
-  struct {
-#define DECLARE_CSR(name, ...) unsigned_word name;
-#include "opcode/riscv-opc.h"
-#undef DECLARE_CSR
-  } csr;
+  unsigned_word csr[4096];
 };
 #define RISCV_SIM_CPU(cpu) ((struct riscv_sim_cpu *) CPU_ARCH_DATA (cpu))
 
